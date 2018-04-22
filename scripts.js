@@ -2,6 +2,8 @@ var canvas = $("#mainCanvas")[0];
 canvas.width = window.innerWidth * 0.7;
 canvas.height = window.innerHeight * 0.8;
 var context = canvas.getContext('2d');
+const MS = 10100;
+var showingSpeed = MS-$("#speedRange").val();
 start();
 window.requestAnimFrame = (function(callback) {
 		return window.requestAnimationFrame || window.webkitRequestAnimationFrame || window.mozRequestAnimationFrame || window.oRequestAnimationFrame || window.msRequestAnimationFrame ||
@@ -16,6 +18,10 @@ $(".randomize").click(function() {
 	});
 });
 
+$("#speedRange").on('input', function () {
+	showingSpeed = MS-$(this).val();
+});
+
 $("#startBtn").click(function() {
 	start();
 });
@@ -28,6 +34,7 @@ function start(){
 	x: Math.min(Math.max($("#x1").val(), radius), canvas.width-radius),
 	y: Math.max(Math.min(canvas.height-$("#y1").val(), canvas.height-radius), radius),
 	v: $("#v1").val(),
+	angle: $("#angle1").val(),
 	radius: radius,
 	color: '#F44336'
 	};
@@ -38,6 +45,7 @@ function start(){
 	x: Math.min(Math.max($("#x2").val(), 2*radius), canvas.width-2*radius),
 	y: Math.max(Math.min(canvas.height-$("#y2").val(), canvas.height-radius), radius),
 	v: $("#v2").val(),
+	angle: $("#angle2").val(),
 	radius: radius,
 	color: '#448AFF'
 	};
@@ -63,17 +71,23 @@ function drawBall(ball, context) {
 function animate(ball1, ball2, canvas, context, startTime) {
 	var time = (new Date()).getTime() - startTime;
 	var posChanged = false;
-	var newX = ball1.x + ball1.v * time / 1000;
+
+	/* Здесь обработка движения и позиционирования */
+
+	var newX = ball1.x + ball1.v * time / showingSpeed;
 	if (newX < canvas.width - ball1.radius) {
 		posChanged = true;
 		ball1.x = newX;
 	 }
 
-	newX = ball2.x - ball2.v * time / 1000;
+	newX = ball2.x - ball2.v * time / showingSpeed;
 	if (newX > ball2.radius) {
 		posChanged = true;
 		ball2.x = newX;
 	}
+	
+	/* Конец */
+
 	if (posChanged){ 
 		context.clearRect(0, 0, canvas.width, canvas.height);
 		drawBall(ball1, context);
