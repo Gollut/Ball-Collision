@@ -54,6 +54,9 @@ input[type="text"] {
 	width:3.1rem;
 	padding: .1rem;
 }
+input[type="text"]:hover {
+	box-shadow:0 3px 6px rgba(0,0,0,.16),0 3px 6px rgba(0,0,0,.23) !important;
+}
 -webkit-input-placeholder{color:#8c8c8c}
 .red{
 	background:#F44336 !important;
@@ -120,7 +123,7 @@ input:enabled:focus {
 	align-items: center;
 	flex-direction:column;
 	box-sizing:border-box;
-	min-width:6.25rem;
+	min-width:10.25rem;
 	padding:.625rem;
 	margin:0;
 }
@@ -147,7 +150,13 @@ input:enabled:focus {
     height: 25px;
     border-radius: 50%; 
     background: #ffffff;
+    -webkit-transition:.3s cubic-bezier(.4,0,.5,1);
+	transition:.3s cubic-bezier(.4,0,.5,1);
     cursor: pointer;
+}
+
+.slider::-webkit-slider-thumb:hover {
+	box-shadow:0 3px 6px rgba(0,0,0,.16),0 3px 6px rgba(0,0,0,.23) !important;
 }
 
 .slider::-moz-range-thumb {
@@ -155,5 +164,15 @@ input:enabled:focus {
     height: 25px;
     border-radius: 50%;
     background: #ffffff;
+    -webkit-transition:.3s cubic-bezier(.4,0,.5,1);
+	transition:.3s cubic-bezier(.4,0,.5,1);
     cursor: pointer;
+}
+.slider::-moz-range-thumb:hover {
+
+	box-shadow:0 3px 6px rgba(0,0,0,.16),0 3px 6px rgba(0,0,0,.23) !important;
+}
+#mainCanvas{
+	padding:0rem !important;
+	margin:1rem !important;
 }
