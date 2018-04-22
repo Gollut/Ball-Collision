@@ -1,7 +1,3 @@
-@font-face {
-font-family: DeliciousRoman;
-src: url(/Delicious-Roman.otf);
-}
 body,html {
 	background:#F5F5F5;
 	padding:0;
@@ -33,8 +29,6 @@ h4 {
 body {
 	max-width:100%;
 }
-canvas {
-}
 .main {
 	margin-top: 3%;
 	height: 100%;
@@ -57,9 +51,8 @@ canvas {
 	min-width:12.5 rem;
 }
 input {
-	width:2.6rem;
+	width:2.9rem;
 	padding: .1rem;
-	min-width:2.95rem;
 	max-width:80%;
 }
 -webkit-input-placeholder{color:#8c8c8c}
