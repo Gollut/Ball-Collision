@@ -22,9 +22,10 @@ $("#startBtn").click(function() {
 
 function start(){
 	var radius = Math.max(0,Math.min($("#radius1").val(), canvas.width/2));
-
+	canvas.width = window.innerWidth * 0.7;
+	canvas.height = window.innerHeight * 0.8;
 	var ball1 = {
-	x: Math.min(Math.max($("#x1").val(), 2*radius), canvas.width-2*radius),
+	x: Math.min(Math.max($("#x1").val(), radius), canvas.width-radius),
 	y: Math.max(Math.min(canvas.height-$("#y1").val(), canvas.height-radius), radius),
 	v: $("#v1").val(),
 	radius: radius,
@@ -45,11 +46,10 @@ function start(){
 	drawBall(ball1, context);
 	drawBall(ball2, context);
 
-	// wait one second before starting animation
 	setTimeout(function() {
 	var startTime = (new Date()).getTime();
 	animate(ball1, ball2, canvas, context, startTime);
-	}, 1000);
+	}, 100);
 }
 
 function drawBall(ball, context) {
@@ -70,7 +70,7 @@ function animate(ball1, ball2, canvas, context, startTime) {
 	 }
 
 	newX = ball2.x - ball2.v * time / 1000;
-	if (newX > ball1.radius) {
+	if (newX > ball2.radius) {
 		posChanged = true;
 		ball2.x = newX;
 	}
