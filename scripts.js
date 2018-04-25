@@ -150,8 +150,10 @@ function animate(ball1, ball2, canvas, context, startTime) {
 		console.log(ball1, ball2);
 		ball1.cos = (2 * ball2.m * ball2.v * ball2.cos - ball1.v * ball1.cos * (ball2.m - ball1.m)) 
 		/ (ball1.v * (ball1.m + ball2.m));
-		ball2.cos = (2 * ball1.m * ball1.v * ball1.cos - ball2.v * ball2.cos * (ball1.m - ball2.m)) 
-		/ (ball2.v * (ball2.m + ball1.m));		
+		console.log("2 * " + ball1.m + " * " + ball1.v + " * " + temp + " - " + ball2.v + " * " + ball2.cos + " * " + (ball1.m - ball2.m), 2 * ball1.m * ball1.v * temp - ball2.v * ball2.cos * (ball1.m - ball2.m));
+		console.log(ball2.v + " * " + (ball2.m + ball1.m));
+		ball2.cos = (2 * ball1.m * ball1.v * temp - ball2.v * ball2.cos * (ball1.m - ball2.m)) 
+		/ (ball2.v * (ball2.m + ball1.m));	
 		ball1.angle = Math.acos(ball1.cos);
 		ball1.sin = Math.sin(ball1.angle);
 		ball2.angle = Math.acos(ball2.cos);
