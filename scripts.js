@@ -5,18 +5,35 @@ var sizeY = canvas.height;
 var sizeX = canvas.width;
 var canvasRatio = canvas.width/canvas.height;
 var showingRatio = 1;
+var globalID;
 var context = canvas.getContext('2d');
 var k = 0;
 const MS = 10100, SPREAD_CONST = 2, G_CONST = 9.8;
 var showingSpeed = MS-$("#speedRange").val();
 start();
 window.requestAnimFrame = (function(callback) {
-		return window.requestAnimationFrame || window.webkitRequestAnimationFrame || window.mozRequestAnimationFrame || window.oRequestAnimationFrame || window.msRequestAnimationFrame ||
-		function(callback) {
-		  window.setTimeout(callback, 1);
-		};
-	  })();
-
+		globalID = (
+            window.webkitRequestAnimationFrame ||
+            window.mozRequestAnimationFrame ||
+            window.oRequestAnimationFrame ||
+            window.msRequestAnimaationFrame ||
+            function(callback, element) {
+                //Doh! Crap browser!
+                window.setTimeout(callback, 1000/60);
+            }
+        )
+})();
+window.performance = window.performance || {};
+performance.now = (function() {
+return performance.now       ||
+    performance.mozNow    ||
+    performance.msNow     ||
+    performance.oNow      ||
+    performance.webkitNow ||
+    function() {
+        return new Date().getTime(); 
+    };
+})();
 $(".randomize").click(function() {
 	$(this).siblings().children("input").each(function() { 
 		$(this).val(Math.random() * Math.floor(360));   
@@ -92,20 +109,20 @@ function start(){
 	sizeY = canvas.height;
 	sizeX = canvas.width;
 	canvasRatio = canvas.width/canvas.height;
-	k = $("#k").val();
+	k = parseFloat($("#k").val().replace(/,/g, "."));
 	var x1 = Math.max($("#x1").val(), radius), y1 = Math.max($("#y1").val(), radius);
 	var ball1 = {
 	x: x1,
 	y: y1,
-	v: $("#v1").val(),
-	u: $("#u1").val(),
+	v: parseFloat($("#v1").val().replace(/,/g, ".")),
+	u: parseFloat($("#u1").val().replace(/,/g, ".")),
 	vX: $("#v1").val() * Math.cos($("#angle1").val()),
 	vY: $("#v1").val() * Math.sin($("#angle1").val()),
 	cos: Math.cos($("#angle1").val()),
 	sin: Math.sin($("#angle1").val()),
-	angle: parseInt($("#angle1").val()),
-	radius: parseInt(radius),
-	m: parseInt($("#mass1").val()),
+	angle: parseFloat($("#angle1").val()),
+	radius: parseFloat(radius),
+	m: parseFloat($("#mass1").val()),
 	color: '#F44336'
 	};
 
@@ -135,8 +152,7 @@ function start(){
 	drawBall(ball1, context);
 	drawBall(ball2, context);
 
-	var startTime = (new Date()).getTime();
-	animate(ball1, ball2, canvas, context, startTime);
+	animate(ball1, ball2, canvas, context, performance.now());
 }
 
 function drawBall(ball, context) {
@@ -165,11 +181,11 @@ function animate(ball1, ball2, canvas, context, startTime) {
 		(ball1.m + ball2.m);
 		ball2.v = (ball1.m * v1 + ball2.m * ball2.v - ball1.m * k * (ball2.v - v1))/
 		(ball1.m + ball2.m);
-		console.log(ball1, ball2);
+		console.log(k, ball1, ball2);
 		//ball2.angle = [ball1.angle, ball1.angle = ball2.angle][0];
 		//ball2.v = [ball1.v, ball1.v = ball2.v][0];
 	}
-	var time = (new Date().getTime() - startTime) / showingSpeed;
+	var time = (performance.now() - startTime) / showingSpeed;
 	var posChanged = false;
 
 	var newX = ball1.x + ball1.cos * (ball1.v * time + k * G_CONST * Math.pow(time, 2) / 2);
@@ -182,17 +198,31 @@ function animate(ball1, ball2, canvas, context, startTime) {
 
 	newX = ball2.x + ball2.cos * (ball2.v * time + k * G_CONST * Math.pow(time, 2) / 2);
 	newY = ball2.y + ball2.sin * (ball2.v * time + k * G_CONST * Math.pow(time, 2) / 2);
-	if (newX <= sizeX + 10*ball2.radius && newX > -10*ball2.radius && newY >= -10*ball2.radius && newY <= sizeY + 10*ball2.radius) {
-		posChanged = true;
-	}
 	ball2.x = newX;
 	ball2.y = newY;
-	if (posChanged){ 
+	if (Math.pow(ball1.x - ball2.x, 2) + Math.pow(ball1.y - ball2.y, 2) < Math.pow(ball1.radius + ball2.radius, 2))
+	{
+		var new1X = ball1.x - (ball1.radius + ball2.radius - Math.abs(ball1.x - ball2.x)) * ball1.v / (Math.abs(ball1.v) + Math.abs(ball2.v)) * ball2.radius/ball1.radius;
+		var new2X = ball2.x - (ball1.radius + ball2.radius - Math.abs(ball1.x - ball2.x)) * ball2.v / (Math.abs(ball1.v) + Math.abs(ball2.v)) * ball1.radius/ball2.radius;
+		console.log(Math.abs(ball1.x - ball2.x), (ball1.radius + ball2.radius), 
+			ball1.radius/ball2.radius, ball1.v, ball2.v);
+		ball1.x = new1X;
+		ball2.x = new2X;
+	}
+	if (newX <= sizeX + 10*ball2.radius && newX > -10*ball2.radius && newY >= -10*ball2.radius && newY <= sizeY + 10*ball2.radius)
+	{
+		posChanged = true;
+	}
+	if (posChanged)
+	{
 		context.clearRect(0, 0, canvas.width, canvas.height);
 		drawBall(ball1, context);
 		drawBall(ball2, context);
 		requestAnimationFrame(function() {
 			animate(ball1, ball2, canvas, context, startTime);
 		});
+	}
+	else{
+		cancelAnimationFrame(globalID);
 	}
 }
