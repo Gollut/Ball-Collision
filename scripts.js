@@ -6,6 +6,7 @@ var sizeX = canvas.width;
 var canvasRatio = canvas.width/canvas.height;
 var showingRatio = 1;
 var context = canvas.getContext('2d');
+var k = 0;
 const MS = 10100, SPREAD_CONST = 2, G_CONST = 9.8;
 var showingSpeed = MS-$("#speedRange").val();
 start();
@@ -88,12 +89,16 @@ function start(){
 	var radius = Math.max(0,Math.min($("#radius1").val(), canvas.width/2));
 	canvas.width = Math.ceil(window.innerWidth * 0.7 - (window.innerWidth * 0.7) % 100);
 	canvas.height = Math.ceil(window.innerHeight * 0.7 + 100 - (window.innerHeight * 0.7) % 100);
+	sizeY = canvas.height;
+	sizeX = canvas.width;
+	canvasRatio = canvas.width/canvas.height;
+	k = $("#k").val();
 	var x1 = Math.max($("#x1").val(), radius), y1 = Math.max($("#y1").val(), radius);
 	var ball1 = {
 	x: x1,
 	y: y1,
 	v: $("#v1").val(),
-	k: $("#k1").val(),
+	u: $("#u1").val(),
 	vX: $("#v1").val() * Math.cos($("#angle1").val()),
 	vY: $("#v1").val() * Math.sin($("#angle1").val()),
 	cos: Math.cos($("#angle1").val()),
@@ -111,7 +116,7 @@ function start(){
 	x: x2,
 	y: y2,
 	v: parseInt($("#v2").val()),
-	k: parseInt($("#k2").val()),
+	u: parseInt($("#u2").val()),
 	vX: $("#v2").val() * Math.cos($("#angle2").val()),
 	vY: $("#v2").val() * Math.sin($("#angle2").val()),
 	cos: Math.cos($("#angle2").val()),
@@ -125,7 +130,6 @@ function start(){
 	sizeY = maxPoint/canvasRatio;
 	sizeX = maxPoint;
 	showingRatio = canvas.width/sizeX;
-	console.log(canvas.width,canvas.height,sizeX,sizeY,showingRatio, canvas.height/sizeY);
 	context.clearRect(0, 0, canvas.width, canvas.height);
 
 	drawBall(ball1, context);
@@ -147,35 +151,37 @@ function animate(ball1, ball2, canvas, context, startTime) {
 	if (Math.pow(ball1.x - ball2.x, 2) + Math.pow(ball1.y - ball2.y, 2) <= Math.pow(ball1.radius + ball2.radius, 2))
 	{
 		temp = ball1.cos;
-		console.log(ball1, ball2);
-		ball1.cos = (2 * ball2.m * ball2.v * ball2.cos - ball1.v * ball1.cos * (ball2.m - ball1.m)) 
-		/ (ball1.v * (ball1.m + ball2.m));
-		console.log("2 * " + ball1.m + " * " + ball1.v + " * " + temp + " - " + ball2.v + " * " + ball2.cos + " * " + (ball1.m - ball2.m), 2 * ball1.m * ball1.v * temp - ball2.v * ball2.cos * (ball1.m - ball2.m));
-		console.log(ball2.v + " * " + (ball2.m + ball1.m));
-		ball2.cos = (2 * ball1.m * ball1.v * temp - ball2.v * ball2.cos * (ball1.m - ball2.m)) 
-		/ (ball2.v * (ball2.m + ball1.m));	
+		/*ball1.cos = (2 * ball2.m * Math.abs(ball2.v) * ball2.cos - Math.abs(ball1.v) * ball1.cos * (ball2.m - ball1.m)) 
+		/ (Math.abs(ball1.v) * (ball1.m + ball2.m));
+		ball2.cos = (2 * ball1.m * Math.abs(ball1.v) * temp - Math.abs(ball2.v) * ball2.cos * (ball1.m - ball2.m)) 
+		/ (Math.abs(ball2.v) * (ball2.m + ball1.m));
 		ball1.angle = Math.acos(ball1.cos);
 		ball1.sin = Math.sin(ball1.angle);
 		ball2.angle = Math.acos(ball2.cos);
-		ball2.sin = Math.sin(ball2.angle);
+		ball2.sin = Math.sin(ball2.angle);*/
+
+		var v1 = ball1.v;
+		ball1.v = (ball1.m * ball1.v + ball2.m * ball2.v - ball2.m * k * (ball1.v - ball2.v))/
+		(ball1.m + ball2.m);
+		ball2.v = (ball1.m * v1 + ball2.m * ball2.v - ball1.m * k * (ball2.v - v1))/
+		(ball1.m + ball2.m);
 		console.log(ball1, ball2);
 		//ball2.angle = [ball1.angle, ball1.angle = ball2.angle][0];
 		//ball2.v = [ball1.v, ball1.v = ball2.v][0];
 	}
-	console.log(Math.pow(ball1.x - ball2.x, 2), Math.pow(ball1.y - ball2.y, 2), Math.pow(ball1.radius + ball2.radius, 2));
 	var time = (new Date().getTime() - startTime) / showingSpeed;
 	var posChanged = false;
 
-	var newX = ball1.x + ball1.cos * (ball1.v * time + ball1.k * G_CONST * Math.pow(time, 2) / 2);
-	var newY = ball1.y + ball1.sin * (ball1.v * time + ball1.k * G_CONST * Math.pow(time, 2) / 2);
+	var newX = ball1.x + ball1.cos * (ball1.v * time + k * G_CONST * Math.pow(time, 2) / 2);
+	var newY = ball1.y + ball1.sin * (ball1.v * time + k * G_CONST * Math.pow(time, 2) / 2);
 	if (newX <= sizeX + 10*ball1.radius && newX > -10*ball1.radius && newY >= -10*ball1.radius && newY <= sizeY + 10*ball1.radius) {
 		posChanged = true;
 	}
 	ball1.x = newX;
 	ball1.y = newY;
 
-	newX = ball2.x + ball2.cos * (ball2.v * time + ball2.k * G_CONST * Math.pow(time, 2) / 2);
-	newY = ball2.y + ball2.sin * (ball2.v * time + ball2.k * G_CONST * Math.pow(time, 2) / 2);
+	newX = ball2.x + ball2.cos * (ball2.v * time + k * G_CONST * Math.pow(time, 2) / 2);
+	newY = ball2.y + ball2.sin * (ball2.v * time + k * G_CONST * Math.pow(time, 2) / 2);
 	if (newX <= sizeX + 10*ball2.radius && newX > -10*ball2.radius && newY >= -10*ball2.radius && newY <= sizeY + 10*ball2.radius) {
 		posChanged = true;
 	}
