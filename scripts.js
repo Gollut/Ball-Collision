@@ -7,7 +7,7 @@ var canvasRatio = canvas.width/canvas.height;
 var showingRatio = 1;
 var globalID;
 var context = canvas.getContext('2d');
-var k = 0;
+var k = 0, u = 0;
 const MS = 10100, SPREAD_CONST = 2, G_CONST = 9.8;
 var showingSpeed = MS-$("#speedRange").val();
 start();
@@ -109,13 +109,13 @@ function start(){
 	sizeY = canvas.height;
 	sizeX = canvas.width;
 	canvasRatio = canvas.width/canvas.height;
+	u = parseFloat($("#u").val().replace(/,/g, "."));
 	k = parseFloat($("#k").val().replace(/,/g, "."));
 	var x1 = Math.max($("#x1").val(), radius), y1 = Math.max($("#y1").val(), radius);
 	var ball1 = {
 	x: x1,
 	y: y1,
 	v: parseFloat($("#v1").val().replace(/,/g, ".")),
-	u: parseFloat($("#u1").val().replace(/,/g, ".")),
 	vX: $("#v1").val() * Math.cos($("#angle1").val()),
 	vY: $("#v1").val() * Math.sin($("#angle1").val()),
 	cos: Math.cos($("#angle1").val()),
@@ -133,7 +133,6 @@ function start(){
 	x: x2,
 	y: y2,
 	v: parseInt($("#v2").val()),
-	u: parseInt($("#u2").val()),
 	vX: $("#v2").val() * Math.cos($("#angle2").val()),
 	vY: $("#v2").val() * Math.sin($("#angle2").val()),
 	cos: Math.cos($("#angle2").val()),
@@ -177,9 +176,9 @@ function animate(ball1, ball2, canvas, context, startTime) {
 		ball2.sin = Math.sin(ball2.angle);*/
 
 		var v1 = ball1.v;
-		ball1.v = (ball1.m * ball1.v + ball2.m * ball2.v - ball2.m * k * (ball1.v - ball2.v))/
+		ball1.v = (ball1.m * ball1.v + ball2.m * ball2.v - ball2.m * u * (ball1.v - ball2.v))/
 		(ball1.m + ball2.m);
-		ball2.v = (ball1.m * v1 + ball2.m * ball2.v - ball1.m * k * (ball2.v - v1))/
+		ball2.v = (ball1.m * v1 + ball2.m * ball2.v - ball1.m * u * (ball2.v - v1))/
 		(ball1.m + ball2.m);
 		console.log(k, ball1, ball2);
 		//ball2.angle = [ball1.angle, ball1.angle = ball2.angle][0];
@@ -209,7 +208,7 @@ function animate(ball1, ball2, canvas, context, startTime) {
 		ball1.x = new1X;
 		ball2.x = new2X;
 	}
-	if (newX <= sizeX + 10*ball2.radius && newX > -10*ball2.radius && newY >= -10*ball2.radius && newY <= sizeY + 10*ball2.radius)
+	if (newX <= sizeX + 2*ball2.radius && newX > -10*ball2.radius && newY >= -2*ball2.radius && newY <= sizeY + 2*ball2.radius)
 	{
 		posChanged = true;
 	}
