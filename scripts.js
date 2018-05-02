@@ -8,8 +8,8 @@ var showingRatio = 1;
 var globalID;
 var context = canvas.getContext('2d');
 var k = 0, u = 0;
-const MS = 10100, SPREAD_CONST = 2, G_CONST = 9.8;
-var showingSpeed = MS-$("#speedRange").val();
+const MS = 1000, SPREAD_CONST = 2, G_CONST = 9.8;
+var showingSpeed = MS/Math.pow(10,$("#speedRange").val());
 start();
 window.requestAnimFrame = (function(callback) {
 		globalID = (
@@ -41,7 +41,8 @@ $(".randomize").click(function() {
 });
 
 $("#speedRange").on('input', function () {
-	showingSpeed = MS-$(this).val();
+	console.log(Math.pow(10,$("#speedRange").val()));
+	showingSpeed = MS/Math.pow(10,$("#speedRange").val());
 });
 
 $("#startBtn").click(function() {
