@@ -143,6 +143,7 @@ function start(){
 	m: parseInt($("#mass2").val()),
 	color: '#448AFF'
 	};
+	console.log(ball1,ball2);
 	var maxPoint = Math.max(x1,x2,y1*canvasRatio,y2*canvasRatio) * SPREAD_CONST;
 	sizeY = maxPoint/canvasRatio;
 	sizeX = maxPoint;
@@ -166,15 +167,15 @@ function drawBall(ball, context) {
 function animate(ball1, ball2, canvas, context, startTime) {
 	if (Math.pow(ball1.x - ball2.x, 2) + Math.pow(ball1.y - ball2.y, 2) <= Math.pow(ball1.radius + ball2.radius, 2))
 	{
-		temp = ball1.cos;
-		/*ball1.cos = (2 * ball2.m * Math.abs(ball2.v) * ball2.cos - Math.abs(ball1.v) * ball1.cos * (ball2.m - ball1.m)) 
+		/*temp = ball1.cos;
+		ball1.cos = (2 * ball2.m * Math.abs(ball2.v) * ball2.cos - Math.abs(ball1.v) * ball1.cos * (ball2.m - ball1.m)) 
 		/ (Math.abs(ball1.v) * (ball1.m + ball2.m));
 		ball2.cos = (2 * ball1.m * Math.abs(ball1.v) * temp - Math.abs(ball2.v) * ball2.cos * (ball1.m - ball2.m)) 
 		/ (Math.abs(ball2.v) * (ball2.m + ball1.m));
 		ball1.angle = Math.acos(ball1.cos);
 		ball1.sin = Math.sin(ball1.angle);
 		ball2.angle = Math.acos(ball2.cos);
-		ball2.sin = Math.sin(ball2.angle);*/
+		ball2.sin = Math.sin(ball2.angle);
 
 		var v1 = ball1.v;
 		ball1.v = (ball1.m * ball1.v + ball2.m * ball2.v - ball2.m * u * (ball1.v - ball2.v))/
@@ -182,22 +183,31 @@ function animate(ball1, ball2, canvas, context, startTime) {
 		ball2.v = (ball1.m * v1 + ball2.m * ball2.v - ball1.m * u * (ball2.v - v1))/
 		(ball1.m + ball2.m);
 		console.log(k, ball1, ball2);
-		//ball2.angle = [ball1.angle, ball1.angle = ball2.angle][0];
-		//ball2.v = [ball1.v, ball1.v = ball2.v][0];
+		ball2.angle = [ball1.angle, ball1.angle = ball2.angle][0];
+		ball2.v = [ball1.v, ball1.v = ball2.v][0]; */
+		ball1.vX = (ball1.vX * ball1.m + ball2.m * ball2.vX) / (ball1.m + ball2.m);
+		ball1.vY = (ball1.vY * ball1.m + ball2.m * ball2.vY) / (ball1.m + ball2.m);
+		ball2.vX = ball1.vX;
+		ball2.vY = ball1.vY;
+		ball1.angle = ball2.angle = Math.atan(ball1.vY/ball1.vX);
+		ball1.cos = ball2.cos = Math.cos(ball1.angle);
+		ball1.sin = ball2.sin = Math.sin(ball1.angle);
+		ball1.v = ball2.v = ball1.vX/ball1.cos;
+		console.log(ball1,ball2);
 	}
 	var time = (performance.now() - startTime) / showingSpeed;
 	var posChanged = false;
 
-	var newX = ball1.x + ball1.cos * (ball1.v * time + k * G_CONST * Math.pow(time, 2) / 2);
-	var newY = ball1.y + ball1.sin * (ball1.v * time + k * G_CONST * Math.pow(time, 2) / 2);
+	var newX = ball1.x + ball1.vX * time + k * G_CONST * Math.pow(time, 2) / 2;
+	var newY = ball1.y + ball1.vY * time + k * G_CONST * Math.pow(time, 2) / 2;
 	if (newX <= sizeX + 10*ball1.radius && newX > -10*ball1.radius && newY >= -10*ball1.radius && newY <= sizeY + 10*ball1.radius) {
 		posChanged = true;
 	}
 	ball1.x = newX;
 	ball1.y = newY;
 
-	newX = ball2.x + ball2.cos * (ball2.v * time + k * G_CONST * Math.pow(time, 2) / 2);
-	newY = ball2.y + ball2.sin * (ball2.v * time + k * G_CONST * Math.pow(time, 2) / 2);
+	newX = ball2.x + ball2.vX * time + k * G_CONST * Math.pow(time, 2) / 2;
+	newY = ball2.y + ball2.vY * time + k * G_CONST * Math.pow(time, 2) / 2;
 	ball2.x = newX;
 	ball2.y = newY;
 	if (Math.pow(ball1.x - ball2.x, 2) + Math.pow(ball1.y - ball2.y, 2) < Math.pow(ball1.radius + ball2.radius, 2))
