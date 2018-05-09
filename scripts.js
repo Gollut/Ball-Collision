@@ -8,6 +8,8 @@ var showingRatio = 1;
 var globalID;
 var context = canvas.getContext('2d');
 var k = 0, u = 0;
+var stop = false;
+var animation;
 const MS = 1000, SPREAD_CONST = 2, G_CONST = 9.8;
 var showingSpeed = MS/Math.pow(10,$("#speedRange").val());
 start();
@@ -104,6 +106,7 @@ function drawAxisLines(){
 }
 
 function start(){
+	clearTimeout(animation);
 	var radius = Math.max(0,Math.min($("#radius1").val(), canvas.width/2));
 	canvas.width = Math.ceil(window.innerWidth * 0.7 - (window.innerWidth * 0.7) % 100);
 	canvas.height = Math.ceil(window.innerHeight * 0.7 + 100 - (window.innerHeight * 0.7) % 100);
@@ -149,10 +152,8 @@ function start(){
 	sizeX = maxPoint;
 	showingRatio = canvas.width/sizeX;
 	context.clearRect(0, 0, canvas.width, canvas.height);
-
 	drawBall(ball1, context);
 	drawBall(ball2, context);
-
 	animate(ball1, ball2, canvas, context, performance.now());
 }
 
@@ -164,7 +165,26 @@ function drawBall(ball, context) {
 	context.fill();
 }
 
-function animate(ball1, ball2, canvas, context, startTime) {
+function animate(ball1, ball2, canvas, context, startTime, prior) {
+	/*if (Math.pow(ball1.x - ball2.x, 2) + Math.pow(ball1.y - ball2.y, 2) < Math.pow(ball1.radius + ball2.radius, 2))
+	{
+		var new1X = ball1.x, new2X = ball2.x, new1Y = ball1.y, new2Y = ball2.y;
+		if (ball1.vX != 0 || ball2.vX != 0)
+		{
+			new1X = new1X - (ball1.radius + ball2.radius - Math.abs(ball1.x - ball2.x)) * ball1.vX / (Math.abs(ball1.vX) + Math.abs(ball2.vX));
+			new2X = new2X - (ball1.radius + ball2.radius - Math.abs(ball1.x - ball2.x)) * ball2.vX / (Math.abs(ball1.vX) + Math.abs(ball2.vX));
+		}
+		if (ball1.vY != 0 || ball2.vY != 0)
+		{ 
+			new1Y = new1Y - (ball1.radius + ball2.radius - Math.abs(ball1.y - ball2.y)) * ball1.vY / (Math.abs(ball1.vY) + Math.abs(ball2.vY));
+			new2Y = new2Y - (ball1.radius + ball2.radius - Math.abs(ball1.y - ball2.y)) * ball2.vY / (Math.abs(ball1.vY) + Math.abs(ball2.vY));
+		}
+		ball1.x = new1X;
+		ball2.x = new2X;
+		ball1.y = new1Y;
+		ball2.y = new2Y;
+	}*/
+	console.log(Math.pow(ball1.x - ball2.x, 2) + Math.pow(ball1.y - ball2.y, 2), Math.pow(ball1.radius + ball2.radius, 2));
 	if (Math.pow(ball1.x - ball2.x, 2) + Math.pow(ball1.y - ball2.y, 2) <= Math.pow(ball1.radius + ball2.radius, 2))
 	{
 		/*temp = ball1.cos;
@@ -192,7 +212,8 @@ function animate(ball1, ball2, canvas, context, startTime) {
 		ball1.angle = ball2.angle = Math.atan(ball1.vY/ball1.vX);
 		ball1.cos = ball2.cos = Math.cos(ball1.angle);
 		ball1.sin = ball2.sin = Math.sin(ball1.angle);
-		ball1.v = ball2.v = ball1.vX/ball1.cos;
+		ball1.v = ball1.vX/ball1.cos;
+		ball2.v = ball2.vX/ball2.cos;
 		console.log(ball1,ball2);
 	}
 	var time = (performance.now() - startTime) / showingSpeed;
@@ -210,15 +231,6 @@ function animate(ball1, ball2, canvas, context, startTime) {
 	newY = ball2.y + ball2.vY * time + k * G_CONST * Math.pow(time, 2) / 2;
 	ball2.x = newX;
 	ball2.y = newY;
-	if (Math.pow(ball1.x - ball2.x, 2) + Math.pow(ball1.y - ball2.y, 2) < Math.pow(ball1.radius + ball2.radius, 2))
-	{
-		var new1X = ball1.x - (ball1.radius + ball2.radius - Math.abs(ball1.x - ball2.x)) * ball1.v / (Math.abs(ball1.v) + Math.abs(ball2.v)) * ball2.radius/ball1.radius;
-		var new2X = ball2.x - (ball1.radius + ball2.radius - Math.abs(ball1.x - ball2.x)) * ball2.v / (Math.abs(ball1.v) + Math.abs(ball2.v)) * ball1.radius/ball2.radius;
-		console.log(Math.abs(ball1.x - ball2.x), (ball1.radius + ball2.radius), 
-			ball1.radius/ball2.radius, ball1.v, ball2.v);
-		ball1.x = new1X;
-		ball2.x = new2X;
-	}
 	if (newX <= sizeX + 2*ball2.radius && newX > -10*ball2.radius && newY >= -2*ball2.radius && newY <= sizeY + 2*ball2.radius)
 	{
 		posChanged = true;
@@ -228,9 +240,12 @@ function animate(ball1, ball2, canvas, context, startTime) {
 		context.clearRect(0, 0, canvas.width, canvas.height);
 		drawBall(ball1, context);
 		drawBall(ball2, context);
-		requestAnimationFrame(function() {
+		animation = setTimeout(function(){
+			animate(ball1, ball2, canvas, context, startTime, false);
+		}, 1)
+		/*requestAnimationFrame(function() {
 			animate(ball1, ball2, canvas, context, startTime);
-		});
+		});*/
 	}
 	else{
 		cancelAnimationFrame(globalID);
