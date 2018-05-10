@@ -122,13 +122,37 @@ input:enabled:focus {
 	display:flex;
 	align-items: center;
 	flex-direction:column;
+	justify-content: flex-start;
 	box-sizing:border-box;
 	min-width:10.25rem;
 	padding:.625rem;
 	margin:0;
 }
+.vertical{
+	flex:1;
+	display:-webkit-box;
+	display:flex;
+	align-items: center;
+	flex-direction:column;
+	justify-content: flex-start;
+	box-sizing:border-box;
+}
+.horizontal{
+	-webkit-box-flex:1;
+	flex:1;
+	flex-wrap: wrap;
+	display:-webkit-box;
+	display:flex;
+	align-items: left;
+	flex-direction:row;
+	justify-content: flex-start;
+	box-sizing:border-box;
+}
 .item{
 	margin:1.25rem .625rem .625rem .625rem;
+}
+.hor-item{
+	margin:0.5rem .625rem .625rem .625rem;
 }
 .slider {
     -webkit-appearance: none;
@@ -175,4 +199,5 @@ input:enabled:focus {
 #mainCanvas{
 	padding:0rem !important;
 	margin:1rem !important;
+	min-width:0 !important;
 }

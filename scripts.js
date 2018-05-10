@@ -120,11 +120,11 @@ function start(){
 	x: x1,
 	y: y1,
 	v: parseFloat($("#v1").val().replace(/,/g, ".")),
-	vX: $("#v1").val() * Math.cos($("#angle1").val()),
-	vY: $("#v1").val() * Math.sin($("#angle1").val()),
-	cos: Math.cos($("#angle1").val()),
-	sin: Math.sin($("#angle1").val()),
-	angle: parseFloat($("#angle1").val()),
+	vX: $("#v1").val() * Math.cos($("#angle1").val() * Math.PI/180),
+	vY: $("#v1").val() * Math.sin($("#angle1").val() * Math.PI/180),
+	cos: Math.cos($("#angle1").val() * Math.PI/180),
+	sin: Math.sin($("#angle1").val() * Math.PI/180),
+	angle: parseFloat($("#angle1").val() * Math.PI/180),
 	radius: parseFloat(radius),
 	m: parseFloat($("#mass1").val()),
 	color: '#F44336'
@@ -137,11 +137,11 @@ function start(){
 	x: x2,
 	y: y2,
 	v: parseInt($("#v2").val()),
-	vX: $("#v2").val() * Math.cos($("#angle2").val()),
-	vY: $("#v2").val() * Math.sin($("#angle2").val()),
-	cos: Math.cos($("#angle2").val()),
-	sin: Math.sin($("#angle2").val()),
-	angle: parseInt($("#angle2").val()),
+	vX: $("#v2").val() * Math.cos($("#angle2").val() * Math.PI/180),
+	vY: $("#v2").val() * Math.sin($("#angle2").val() * Math.PI/180),
+	cos: Math.cos($("#angle2").val() * Math.PI/180),
+	sin: Math.sin($("#angle2").val() * Math.PI/180),
+	angle: parseInt($("#angle2").val() * Math.PI/180),
 	radius: parseInt(radius),
 	m: parseInt($("#mass2").val()),
 	color: '#448AFF'
@@ -166,6 +166,19 @@ function drawBall(ball, context) {
 }
 
 function animate(ball1, ball2, canvas, context, startTime, prior) {
+	$("#angle-info1").val(ball1.angle*180/Math.PI);
+	$("#x-info1").val(ball1.x);
+	$("#y-info1").val(ball1.y);
+	$("#v-info1").val(ball1.v);
+	$("#vX-info1").val(ball1.vX);
+	$("#vY-info1").val(ball1.vY);
+
+	$("#angle-info2").val(ball2.angle*180/Math.PI);
+	$("#x-info2").val(ball2.x);
+	$("#y-info2").val(ball2.y);
+	$("#v-info2").val(ball2.v);
+	$("#vX-info2").val(ball2.vX);
+	$("#vY-info2").val(ball2.vY);
 	/*if (Math.pow(ball1.x - ball2.x, 2) + Math.pow(ball1.y - ball2.y, 2) < Math.pow(ball1.radius + ball2.radius, 2))
 	{
 		var new1X = ball1.x, new2X = ball2.x, new1Y = ball1.y, new2Y = ball2.y;

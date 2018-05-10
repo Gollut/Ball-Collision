@@ -9,37 +9,57 @@
 
 <body>
 	<div class="main">
-	<div class="modal">
-		<h2>Ball collision</h2>
-		<div class="green card">
-			<h3>Demo speed</h3>
-			<input type="range" min="-2" max="2" value="0" step="0.0001" class="slider" id="speedRange">
-			<div class="item"> k (friction) = <input type="text" id="k" value="0"/> </div>
-			<div class="item"> u (elasticity) = <input type="text" id="u" value="0"/> </div>
-			<div class="btn" id="startBtn">Start</div>
+		<div class="modal">
+			<h2>Ball collision</h2>
+			<div class="green card">
+				<h3>Demo speed</h3>
+				<input type="range" min="-2" max="2" value="0" step="0.0001" class="slider" id="speedRange">
+				<div class="item"> k (friction) = <input type="text" id="k" value="0"/> </div>
+				<div class="item"> u (elasticity) = <input type="text" id="u" value="0"/> </div>
+				<div class="btn" id="startBtn">Start</div>
+			</div>
+			<div class="red card">
+				<h3> Ball 1 </h3>
+				<div class="item"> m = <input type="text" id="mass1" value="1"/> kg </div>
+				<div class="item"> r = <input type="text" id="radius1" value="20"/> m </div>
+				<div class="item"> Start angle = <input type="text" id="angle1" value="0"/> </div>
+				<div class="item"> Start v = <input type="text" id="v1" value="30"/> m/s </div>
+				<div class="item"> Start x = <input type="text" id="x1" value="100"/> </div>
+				<div class="item"> Start y = <input type="text" id="y1" value="300"/> </div>
+				<div class="btn randomize">Randomize</div>
+			</div>
+			<div class="blue card">
+				<h3> Ball 2 </h3>
+				<div class="item"> m = <input type="text" id="mass2" value="1"/> kg </div>
+				<div class="item"> r = <input type="text" id="radius2" value="20"/> m </div>
+				<div class="item"> Start angle = <input type="text" id="angle2" value="0"/> </div>
+				<div class="item"> Start v = <input type="text" id="v2" value="-10"/> m/s </div>
+				<div class="item"> Start x = <input type="text" id="x2" value="300"/> </div>
+				<div class="item"> Start y = <input type="text" id="y2" value="300"/> </div>
+				<div class="btn randomize">Randomize</div>
+			</div>
 		</div>
-		<div class="red card">
-			<h3> Ball 1 </h3>
-			<div class="item"> m = <input type="text" id="mass1" value="1"/> kg </div>
-			<div class="item"> r = <input type="text" id="radius1" value="20"/> m </div>
-			<div class="item"> Start angle = <input type="text" id="angle1" value="0"/> </div>
-			<div class="item"> Start v = <input type="text" id="v1" value="30"/> m/s </div>
-			<div class="item"> Start x = <input type="text" id="x1" value="100"/> </div>
-			<div class="item"> Start y = <input type="text" id="y1" value="300"/> </div>
-			<div class="btn randomize">Randomize</div>
+		<div class="vertical">
+			<canvas id="mainCanvas" class="card"></canvas>
+			<div class="horizontal">
+				<div class="red horizontal card">
+						<div class="hor-item"> Angle = <input type="text" disabled id="angle-info1"/></div>
+						<div class="hor-item"> V = <input type="text" disabled id="v-info1"/> m/s </div>
+						<div class="hor-item"> Vx = <input type="text" disabled id="vX-info1"/> m/s </div>
+						<div class="hor-item"> Vy = <input type="text" disabled id="vY-info1"/> m/s </div>
+						<div class="hor-item"> x = <input type="text" disabled id="x-info1"/> </div>
+						<div class="hor-item"> y = <input type="text" disabled id="y-info1"/> </div>
+				</div>
+				<div class="blue horizontal card">
+						<div class="hor-item"> Angle = <input type="text" disabled id="angle-info2"/> </div>
+						<div class="hor-item"> V = <input type="text" disabled id="v-info2"/> m/s </div>
+						<div class="hor-item"> Vx = <input type="text" disabled id="vX-info2"/> m/s </div>
+						<div class="hor-item"> Vy = <input type="text" disabled id="vY-info2"/> m/s </div>
+						<div class="hor-item"> x = <input type="text" disabled id="x-info2"/> </div>
+						<div class="hor-item"> y = <input type="text" disabled id="y-info2"/> </div>
+				</div>
+			</div>
 		</div>
-		<div class="blue card">
-			<h3> Ball 2 </h3>
-			<div class="item"> m = <input type="text" id="mass2" value="1"/> kg </div>
-			<div class="item"> r = <input type="text" id="radius2" value="20"/> m </div>
-			<div class="item"> Start angle = <input type="text" id="angle2" value="0"/> </div>
-			<div class="item"> Start v = <input type="text" id="v2" value="-10"/> m/s </div>
-			<div class="item"> Start x = <input type="text" id="x2" value="300"/> </div>
-			<div class="item"> Start y = <input type="text" id="y2" value="300"/> </div>
-			<div class="btn randomize">Randomize</div>
-		</div>
-	</div>
-	<canvas id="mainCanvas" class="card"></canvas>
 	</div>
 	<script src="scripts.js" type="text/javascript"></script>
 </body>
