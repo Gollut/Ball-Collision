@@ -1,6 +1,6 @@
 var canvas = $("#mainCanvas")[0];
 canvas.width = Math.ceil(window.innerWidth * 0.7 - (window.innerWidth * 0.7) % 100);
-canvas.height = Math.ceil(window.innerHeight * 0.7 + 100 - (window.innerHeight * 0.7) % 100);
+canvas.height = Math.ceil(window.innerHeight * 0.7 - (window.innerHeight * 0.7) % 100);
 var sizeY = canvas.height;
 var sizeX = canvas.width;
 var canvasRatio = canvas.width/canvas.height;
@@ -109,12 +109,12 @@ function start(){
 	clearTimeout(animation);
 	var radius = Math.max(0,Math.min($("#radius1").val(), canvas.width/2));
 	canvas.width = Math.ceil(window.innerWidth * 0.7 - (window.innerWidth * 0.7) % 100);
-	canvas.height = Math.ceil(window.innerHeight * 0.7 + 100 - (window.innerHeight * 0.7) % 100);
+	canvas.height = Math.ceil(window.innerHeight * 0.7 - (window.innerHeight * 0.7) % 100);
 	sizeY = canvas.height;
 	sizeX = canvas.width;
 	canvasRatio = canvas.width/canvas.height;
-	u = parseFloat($("#u").val().replace(/,/g, "."));
-	k = parseFloat($("#k").val().replace(/,/g, "."));
+	//u = parseFloat($("#u").val().replace(/,/g, "."));
+	//k = parseFloat($("#k").val().replace(/,/g, "."));
 	var x1 = Math.max($("#x1").val(), radius), y1 = Math.max($("#y1").val(), radius);
 	var ball1 = {
 	x: x1,
@@ -225,23 +225,32 @@ function animate(ball1, ball2, canvas, context, startTime, prior) {
 		ball1.angle = ball2.angle = Math.atan(ball1.vY/ball1.vX);
 		ball1.cos = ball2.cos = Math.cos(ball1.angle);
 		ball1.sin = ball2.sin = Math.sin(ball1.angle);
-		ball1.v = ball1.vX/ball1.cos;
-		ball2.v = ball2.vX/ball2.cos;
+		if (ball1.cos != 0)
+		{
+			ball1.v = ball1.vX/ball1.cos;
+			ball2.v = ball2.vX/ball2.cos;
+		}
+		else {
+			ball1.v = ball1.vY/ball1.sin;
+			ball2.v = ball2.vY/ball2.sin;
+		}
 		console.log(ball1,ball2);
 	}
 	var time = (performance.now() - startTime) / showingSpeed;
 	var posChanged = false;
 
-	var newX = ball1.x + ball1.vX * time + k * G_CONST * Math.pow(time, 2) / 2;
-	var newY = ball1.y + ball1.vY * time + k * G_CONST * Math.pow(time, 2) / 2;
+	newX = ball1.x + ball1.vX * time;
+	newY = ball1.y + ball1.vY * time;
 	if (newX <= sizeX + 10*ball1.radius && newX > -10*ball1.radius && newY >= -10*ball1.radius && newY <= sizeY + 10*ball1.radius) {
 		posChanged = true;
 	}
 	ball1.x = newX;
 	ball1.y = newY;
 
-	newX = ball2.x + ball2.vX * time + k * G_CONST * Math.pow(time, 2) / 2;
-	newY = ball2.y + ball2.vY * time + k * G_CONST * Math.pow(time, 2) / 2;
+	//newX = ball2.x + ball2.vX * time + k * G_CONST * Math.pow(time, 2) / 2;
+	//newY = ball2.y + ball2.vY * time + k * G_CONST * Math.pow(time, 2) / 2;
+	newX = ball2.x + ball2.vX * time;
+	newY = ball2.y + ball2.vY * time;
 	ball2.x = newX;
 	ball2.y = newY;
 	if (newX <= sizeX + 2*ball2.radius && newX > -10*ball2.radius && newY >= -2*ball2.radius && newY <= sizeY + 2*ball2.radius)
