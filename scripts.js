@@ -13,7 +13,6 @@ var animation;
 const MS = 1000, SPREAD_CONST = 2, G_CONST = 9.8;
 var showingSpeed = MS/Math.pow(10,$("#speedRange").val());
 start();
-console.log("s", showingSpeed);
 window.requestAnimFrame = (function(callback) {
 		globalID = (
             window.webkitRequestAnimationFrame ||
@@ -140,7 +139,6 @@ function start(){
 	mainColor: '#448AFF',
 	subColor: '#275299',
 	};
-	console.log(ball1,ball2);
 	var maxPoint = Math.max(x1,x2,y1*canvasRatio,y2*canvasRatio) * SPREAD_CONST;
 	sizeY = maxPoint/canvasRatio;
 	sizeX = maxPoint;
@@ -150,9 +148,9 @@ function start(){
 	a = Math.pow(ball1.vX - ball2.vX, 2) + Math.pow(ball1.vY - ball2.vY, 2);
 	b = 2*((ball1.x - ball2.x)*(ball1.vX-ball2.vX) + (ball1.y - ball2.y)*(ball1.vY-ball2.vY));
 	c = Math.pow(ball1.x - ball2.x, 2) + Math.pow(ball1.y - ball2.y, 2) - Math.pow(ball1.radius + ball2.radius, 2);
-	console.log(a,b,c, (-b + Math.sqrt(Math.pow(b,2) - 4*a*c)) / (2*a), (-b - Math.sqrt(Math.pow(b,2) - 4*a*c)) / (2*a));
-	collisionTime = Math.max((-b + Math.sqrt(Math.pow(b,2) - 4*a*c)) / (2*a), 
-		(-b - Math.sqrt(Math.pow(b,2) - 4*a*c)) / (2*a)) * 1000/showingSpeed;
+	//console.log(a,b,c, (-b + Math.sqrt(Math.pow(b,2) - 4*a*c)) / (2*a), (-b - Math.sqrt(Math.pow(b,2) - 4*a*c)) / (2*a));
+	collisionTime = Math.min((-b + Math.sqrt(Math.pow(b,2) - 4*a*c)) / (2*a), 
+		(-b - Math.sqrt(Math.pow(b,2) - 4*a*c)) / (2*a));
 	animate(ball1, ball2, canvas, context, performance.now(), collisionTime);
 }
 
@@ -204,14 +202,16 @@ function calculateCollision(balls)
 		Math.sqrt(newCoords[0] * newCoords[0] + newCoords[1] * newCoords[1]),
 		(balls[i+1].x * newCoords[0] + balls[i+1].y * newCoords[1]) / Math.sqrt(balls[i+1].vX * balls[i+1].vX + balls[i+1].vY * balls[i+1].vY) *
 		Math.sqrt(newCoords[0] * newCoords[0] + newCoords[1] * newCoords[1])];
+		temp = balls[i].vX;
 		balls[i].vX = (balls[i].m * balls[i].vX + balls[i+1].m * balls[i+1].vX - balls[i+1].m * k * (balls[i+1].vX - balls[i].vX))
 		/ (balls[i].m + balls[i+1].m);
-		balls[i + 1].vX = (balls[i].m * balls[i].vX + balls[i+1].m * balls[i+1].vX - balls[i].m * k * (balls[i].vX - balls[i + 1].vX))
+		balls[i + 1].vX = (balls[i].m * temp + balls[i+1].m * balls[i+1].vX - balls[i].m * k * (temp - balls[i + 1].vX))
 		/ (balls[i].m + balls[i+1].m);
-		/*balls[i].vY = (balls[i].m * balls[i].vY + balls[i+1].m * balls[i+1].vY - balls[i+1].m * k * (balls[i+1].vY - balls[i].vY))
+		temp = balls[i].vY;
+		balls[i].vY = (balls[i].m * balls[i].vY + balls[i+1].m * balls[i+1].vY - balls[i+1].m * k * (balls[i+1].vY - balls[i].vY))
 		/ (balls[i].m + balls[i+1].m);
-		balls[i + 1].vY = (balls[i].m * balls[i].vY + balls[i+1].m * balls[i+1].vY - balls[i].m * k * (balls[i].vY - balls[i + 1].vY))
-		/ (balls[i].m + balls[i+1].m);*/
+		balls[i + 1].vY = (balls[i].m * temp + balls[i+1].m * balls[i+1].vY - balls[i].m * k * (temp - balls[i + 1].vY))
+		/ (balls[i].m + balls[i+1].m);
 		balls[i].angle = Math.atan(balls[i].vY/balls[i].vX);
 		balls[i+1].angle = Math.atan(balls[i+1].vY/balls[i+1].vX);
 		balls[i].cos = Math.cos(balls[i].angle);
@@ -222,7 +222,6 @@ function calculateCollision(balls)
 		balls[i].sY = balls[i].y;
 		balls[i+1].sX = balls[i+1].x;
 		balls[i+1].sY = balls[i+1].y;
-		console.log(balls, newCoords, transCos);
 	}
 	return balls;
 }
@@ -241,7 +240,7 @@ function animate(ball1, ball2, canvas, context, startTime, collisionTime) {
 	$("#vX-info2").val(ball2.vX);
 	$("#vY-info2").val(ball2.vY);
 	var time = (performance.now() - startTime) / showingSpeed;
-	console.log(performance.now(), startTime, time, collisionTime);
+	console.log(time, collisionTime);
 	newX = ball1.sX + ball1.vX * time;
 	newY = ball1.sY + ball1.vY * time;
 	ball1.x = newX;
@@ -252,7 +251,7 @@ function animate(ball1, ball2, canvas, context, startTime, collisionTime) {
 	newY = ball2.sY + ball2.vY * time;
 	ball2.x = newX;
 	ball2.y = newY;
-	/*if (Math.abs(time - collisionTime) < 1)
+	/*if (Math.abs(time - collisionTime) < 10 / showingSpeed)
 	{
 		[ball1,ball2] = calculateCollision([ball1,ball2]);
 		startTime = performance.now();
