@@ -196,12 +196,23 @@ function calculateCollision(balls)
 	for(var i = 0; i < balls.length-1; i++)
 	{
 		var newCoords = [balls[i].x - balls[i+1].x, balls[i].y - balls[i+1].y];
-		var transAngle = Math.acos([(balls[i].x * newCoords[0] + balls[i].y * newCoords[1]) / Math.sqrt(balls[i].vX * balls[i].vX + balls[i].vY * balls[i].vY) *
-		Math.sqrt(newCoords[0] * newCoords[0] + newCoords[1] * newCoords[1]),
-		(balls[i+1].x * newCoords[0] + balls[i+1].y * newCoords[1]) / Math.sqrt(balls[i+1].vX * balls[i+1].vX + balls[i+1].vY * balls[i+1].vY) *
-		Math.sqrt(newCoords[0] * newCoords[0] + newCoords[1] * newCoords[1])]);
-		temp = balls[i].vX;
-		balls[i].vX = ((2 * balls[i+1].m * balls[i+1].vX) + (balls[i].m - balls[i+1].m) * balls[i].vX)/(balls[i].m + balls[i+1].m);
+		var transAngle = Math.acos(Math.abs(balls[i].vX * newCoords[0] + balls[i].vY * newCoords[1]) / (Math.sqrt(balls[i].vX * balls[i].vX + balls[i].vY * balls[i].vY) *
+		Math.sqrt(newCoords[0] * newCoords[0] + newCoords[1] * newCoords[1])));
+		console.log(Math.abs(balls[i].vX * newCoords[0] + balls[i].vY * newCoords[1]), Math.sqrt(balls[i].vX * balls[i].vX + balls[i].vY * balls[i].vY) *
+		Math.sqrt(newCoords[0] * newCoords[0] + newCoords[1] * newCoords[1]));
+		balls[i].vX = (balls[i].v * Math.cos(balls[i].angle-transAngle)*(balls[i].m - balls[i+1].m) + 
+						2 * balls[i+1].m * balls[i+1].v * Math.cos(balls[i+1].angle-transAngle)) / (balls[i].m + balls[i+1].m) * Math.cos(transAngle) +
+						balls[i].v * Math.sin(balls[i].angle-transAngle) * Math.cos(transAngle+Math.PI/2);
+		balls[i].vY = (balls[i].v * Math.cos(balls[i].angle-transAngle)*(balls[i].m - balls[i+1].m) + 
+						2 * balls[i+1].m * balls[i+1].v * Math.cos(balls[i+1].angle-transAngle)) / (balls[i].m + balls[i+1].m) * Math.sin(transAngle) +
+						balls[i].v * Math.sin(balls[i].angle-transAngle) * Math.sin(transAngle+Math.PI/2);
+		balls[i+1].vX = (balls[i+1].v * Math.cos(balls[i+1].angle-transAngle)*(balls[i+1].m - balls[i].m) + 
+						2 * balls[i].m * balls[i].v * Math.cos(balls[i].angle-transAngle)) / (balls[i].m + balls[i+1].m) * Math.cos(transAngle) +
+						balls[i+1].v * Math.sin(balls[i+1].angle-transAngle) * Math.cos(transAngle+Math.PI/2);
+		balls[i+1].vY = (balls[i+1].v * Math.cos(balls[i+1].angle-transAngle)*(balls[i+1].m - balls[i].m) + 
+						2 * balls[i].m * balls[i].v * Math.cos(balls[i].angle-transAngle)) / (balls[i+1].m + balls[i].m) * Math.sin(transAngle) +
+						balls[i+1].v * Math.sin(balls[i+1].angle-transAngle) * Math.sin(transAngle+Math.PI/2);
+		/*balls[i].vX = ((2 * balls[i+1].m * balls[i+1].vX) + (balls[i].m - balls[i+1].m) * balls[i].vX)/(balls[i].m + balls[i+1].m);
 		balls[i+1].vX = ((2 * balls[i].m * temp) + (balls[i+1].m - balls[i].m) * balls[i+1].vX)/(balls[i].m + balls[i+1].m);
 		temp = balls[i].vY;
 		balls[i].vY = ((2 * balls[i+1].m * balls[i+1].vY) + (balls[i].m - balls[i+1].m) * balls[i].vY)/(balls[i].m + balls[i+1].m);
@@ -221,6 +232,12 @@ function calculateCollision(balls)
 		balls[i + 1].cos = Math.cos(balls[i + 1].angle);
 		balls[i].sin = Math.sin(balls[i].angle);
 		balls[i+1].sin = Math.sin(balls[i + 1].angle);
+		if (balls[i].cos != 0)
+			balls[i].v = balls[i].vX / balls[i].cos;
+		else balls[i].v =  balls[i].vY / balls[i].sin;
+		if (balls[i+1].cos != 0)
+			balls[i+1].v =  balls[i+1].vX / balls[i+1].cos;
+		else balls[i+1].v =  balls[i+1].vY / balls[i+1].sin;
 		balls[i].sT = performance.now();
 		balls[i+1].sT = performance.now();
 		balls[i].sX = balls[i].x;
@@ -247,6 +264,9 @@ function wallCollision(balls)
 			balls[i].sX = balls[i].x;
 			balls[i].sY = balls[i].y;
 			balls[i].angle = Math.atan(balls[i].vY/balls[i].vX);
+			if (balls[i].cos != 0)
+				balls[i].v = balls[i].vX / balls[i].cos;
+			else balls[i].v =  balls[i].vY / balls[i].sin;
 		}
 		if (balls[i].y < balls[i].radius || balls[i].y > sizeY - balls[i].radius)
 		{
@@ -261,6 +281,9 @@ function wallCollision(balls)
 			balls[i].sY = balls[i].y;
 			balls[i].sX = balls[i].x;
 			balls[i].angle = Math.atan(balls[i].vY/balls[i].vX);
+			if (balls[i].cos != 0)
+				balls[i].v = balls[i].vX / balls[i].cos;
+			else balls[i].v =  balls[i].vY / balls[i].sin;
 		}
 	}
 	return balls;
