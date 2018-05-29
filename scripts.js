@@ -11,10 +11,10 @@ var context = canvas.getContext('2d');
 var k = 0, u = 0;
 var stop = false;
 var animation = false;
-const MS = 1000, SPREAD_CONST = 2, G_CONST = 9.8;
+const MS = 1000, SPREAD_CONST = 3, G_CONST = 9.8;
 var showingSpeed = MS/Math.pow(10,$("#speedRange").val());
 var walls = true;
-const PI = Math.PI+0.1;
+const PI = Math.PI+0.00000001;
 start();
 window.requestAnimationFrame = (function(callback) {
 		return window.requestAnimationFrame || window.webkitRequestAnimationFrame || window.mozRequestAnimationFrame || window.oRequestAnimationFrame || window.msRequestAnimationFrame ||
@@ -210,7 +210,7 @@ function calculateCollision(ball1,ball2)
 			ball2.y -= ball2.vY  * showingSpeed / 10000000;
 		}
 		var newCoords = [ball1.x - ball2.x, ball1.y - ball2.y];
-		var transAngle = Math.acos(Math.abs(newCoords[0]) / Math.sqrt(newCoords[0] * newCoords[0] + newCoords[1] * newCoords[1]));
+		var transAngle = PI - Math.acos(Math.abs(newCoords[0]) / Math.sqrt(newCoords[0] * newCoords[0] + newCoords[1] * newCoords[1]));
 		$("#angle-info0").val(transAngle*180/PI);
 		//console.log(Math.abs(ball1.vX * newCoords[0] + ball1.vY * newCoords[1]), Math.sqrt(ball1.vX * ball1.vX + ball1.vY * ball1.vY) *
 		Math.sqrt(newCoords[0] * newCoords[0] + newCoords[1] * newCoords[1]);
