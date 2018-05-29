@@ -308,11 +308,11 @@ function animate(ball1, ball2, canvas, context) {
 	$("#distance-info").val(Math.sqrt(Math.pow(ball1.x - ball2.x, 2) + Math.pow(ball1.y - ball2.y, 2)));
 
 	time = (performance.now()-ball1.sT) / showingSpeed;
-	ball1.x = ball1.sX + ball1.vX * time + u * G_CONST * Math.pow(time, 2) / 2;
-	ball1.y = ball1.sY + ball1.vY * time + u * G_CONST * Math.pow(time, 2) / 2;
+	ball1.x = ball1.sX + ball1.vX * time + u * G_CONST * time;
+	ball1.y = ball1.sY + ball1.vY * time + u * G_CONST * time;
 	time = (performance.now()-ball2.sT) / showingSpeed;
-	ball2.x = ball2.sX + ball2.vX * time + u * G_CONST * Math.pow(time, 2) / 2;
-	ball2.y = ball2.sY + ball2.vY * time + u * G_CONST * Math.pow(time, 2) / 2;
+	ball2.x = ball2.sX + ball2.vX * time + u * G_CONST * time;
+	ball2.y = ball2.sY + ball2.vY * time + u * G_CONST * time;
 	if (walls)
 		[ball1, ball2] = wallCollision([ball1, ball2]);
 	if (Math.pow(ball1.x - ball2.x, 2) + Math.pow(ball1.y - ball2.y, 2) <= Math.pow(ball1.radius + ball2.radius, 2))
