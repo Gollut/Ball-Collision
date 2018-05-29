@@ -3,7 +3,7 @@ body,html {
 	padding:0;
 	margin:0;
 	font-family:Roboto,Noto,"PT sans",Verdana,Arial,sans;
-	font-size:1rem;
+	font-size:0.99rem;
 	line-height:1.5;
 	user-select: none;
 }
@@ -129,7 +129,7 @@ input:enabled:focus {
 	margin:0;
 }
 .vertical{
-	flex:1;
+	flex:2;
 	display:-webkit-box;
 	display:flex;
 	align-items: center;
@@ -152,7 +152,7 @@ input:enabled:focus {
 	margin:1.25rem .625rem .625rem .625rem;
 }
 .hor-item{
-	margin:0.5rem .625rem .625rem .625rem;
+	margin:0.5rem .5rem .5rem .5rem;
 }
 .slider {
     -webkit-appearance: none;
