@@ -5,6 +5,7 @@ var sizeY = canvas.height;
 var sizeX = canvas.width;
 var canvasRatio = canvas.width/canvas.height;
 var showingRatio = 1;
+const CENTER_CONST = 8;
 var globalID;
 var context = canvas.getContext('2d');
 var k = 0, u = 0;
@@ -13,6 +14,7 @@ var animation = false;
 const MS = 1000, SPREAD_CONST = 2, G_CONST = 9.8;
 var showingSpeed = MS/Math.pow(10,$("#speedRange").val());
 var walls = true;
+const PI = Math.PI+0.1;
 start();
 window.requestAnimationFrame = (function(callback) {
 		return window.requestAnimationFrame || window.webkitRequestAnimationFrame || window.mozRequestAnimationFrame || window.oRequestAnimationFrame || window.msRequestAnimationFrame ||
@@ -96,10 +98,10 @@ function start(){
 	sizeX = canvas.width;
 	canvasRatio = canvas.width/canvas.height;
 	//u = parseFloat($("#u").val().replace(/,/g, "."));
-	//k = parseFloat($("#k").val().replace(/,/g, "."));
+	k = parseFloat($("#k").val().replace(/,/g, "."));
 
 	var x1 = Math.max($("#x1").val(), radius), y1 = Math.max($("#y1").val(), radius);
-	var angle = parseFloat($("#angle1").val() * Math.PI/180);
+	var angle = parseFloat($("#angle1").val() * PI/180);
 	var ball1 = {
 	sT: performance.now(),
 	sX: x1,
@@ -121,7 +123,7 @@ function start(){
 	radius = Math.max(0,Math.min($("#radius2").val(), canvas.width/2));
 	x2 = Math.max($("#x2").val(), radius);
 	y2 = Math.max($("#y2").val(), radius);
-	angle = parseFloat($("#angle2").val() * Math.PI/180);
+	angle = parseFloat($("#angle2").val() * PI/180);
 	var ball2 = {
 	sT: performance.now(),
 	sX: x2,
@@ -133,7 +135,7 @@ function start(){
 	vY: $("#v2").val() * Math.sin(angle),
 	cos: Math.cos(angle),
 	sin: Math.sin(angle),
-	angle: parseFloat(angle),
+	angle: angle,
 	radius: parseFloat(radius),
 	m: parseInt($("#mass2").val()),
 	mainColor: '#448AFF',
@@ -157,20 +159,20 @@ function start(){
 
 function drawArrow(context, ball){
 	context.beginPath();
-	var N = 4;
+	var N = 1000/showingSpeed;
 	fromx = ball.x*showingRatio;
 	fromy = (1-ball.y/sizeY)*canvas.height;
-	tox = ball.x*showingRatio+ball.vX*N*showingRatio;
-	toy = (1-ball.y/sizeY)*canvas.height-ball.vY*N*showingRatio;
+	tox = ball.x*showingRatio+ball.vX*N*showingRatio + ball.radius/CENTER_CONST*showingRatio;
+	toy = (1-ball.y/sizeY)*canvas.height-ball.vY*N*showingRatio-ball.vY*ball.radius/CENTER_CONST*showingRatio;
     var headlen = 0;
     var angle = Math.atan2(toy-fromy,tox-fromx);
     context.beginPath();
     context.lineWidth=ball.radius/30;
     context.moveTo(fromx, fromy);
     context.lineTo(tox, toy);
-    context.lineTo(tox-headlen*Math.cos(angle-Math.PI/8),toy+headlen*Math.sin(angle-Math.PI/8));
+    context.lineTo(tox-headlen*Math.cos(angle-PI/8),toy+headlen*Math.sin(angle-PI/8));
     context.moveTo(tox, toy);
-    context.lineTo(tox-headlen*Math.cos(angle+Math.PI/8),toy+headlen*Math.sin(angle+Math.PI/8));
+    context.lineTo(tox-headlen*Math.cos(angle+PI/8),toy+headlen*Math.sin(angle+PI/8));
     context.strokeStyle = ball.subColor;
 	context.stroke();
 }
@@ -179,6 +181,10 @@ function drawBall(context, ball) {
 	context.beginPath();
 	context.arc(ball.x*showingRatio, (1-ball.y/sizeY)*canvas.height, ball.radius*showingRatio, 0, 360, 0);
 	context.fillStyle = ball.mainColor;
+	context.fill();
+	context.beginPath();
+	context.arc(ball.x*showingRatio, (1-ball.y/sizeY)*canvas.height, ball.radius/CENTER_CONST*showingRatio, 0, 360, 0);
+	context.fillStyle = ball.subColor;
 	context.fill();
 }
 
@@ -194,66 +200,82 @@ function drawBalls(context, balls) {
 	drawAxisLines();
 }
 
-function calculateCollision(balls)
+function calculateCollision(ball1,ball2)
 {
-	for(var i = 0; i < balls.length-1; i++)
-	{
-		var newCoords = [balls[i].x - balls[i+1].x, balls[i].y - balls[i+1].y];
+	while (Math.pow(ball1.x - ball2.x, 2) + Math.pow(ball1.y - ball2.y, 2) <= Math.pow(ball1.radius + ball2.radius, 2))
+		{
+			ball1.x -= ball1.vX  * showingSpeed / 10000000;
+			ball1.y -= ball1.vY  * showingSpeed / 10000000;
+			ball2.x -= ball2.vX  * showingSpeed / 10000000;
+			ball2.y -= ball2.vY  * showingSpeed / 10000000;
+		}
+		var newCoords = [ball1.x - ball2.x, ball1.y - ball2.y];
 		var transAngle = Math.acos(Math.abs(newCoords[0]) / Math.sqrt(newCoords[0] * newCoords[0] + newCoords[1] * newCoords[1]));
-		$("#angle-info0").val(transAngle*180/Math.PI);
-		//console.log(Math.abs(balls[i].vX * newCoords[0] + balls[i].vY * newCoords[1]), Math.sqrt(balls[i].vX * balls[i].vX + balls[i].vY * balls[i].vY) *
+		$("#angle-info0").val(transAngle*180/PI);
+		//console.log(Math.abs(ball1.vX * newCoords[0] + ball1.vY * newCoords[1]), Math.sqrt(ball1.vX * ball1.vX + ball1.vY * ball1.vY) *
 		Math.sqrt(newCoords[0] * newCoords[0] + newCoords[1] * newCoords[1]);
-		balls[i].vX = (balls[i].v * Math.cos(balls[i].angle-transAngle)*(balls[i].m - balls[i+1].m) + 
-						2 * balls[i+1].m * balls[i+1].v * Math.cos(balls[i+1].angle-transAngle)) / (balls[i].m + balls[i+1].m) * Math.cos(transAngle) +
-						balls[i].v * Math.sin(balls[i].angle-transAngle) * Math.cos(transAngle+Math.PI/2);
+		/*ball1.vX = (ball1.v * Math.cos(ball1.angle-transAngle)*(ball1.m - ball2.m) + 
+						2 * ball2.m * ball2.v * Math.cos(ball2.angle-transAngle)) / (ball1.m + ball2.m) * Math.cos(transAngle) +
+						ball1.v * Math.sin(ball1.angle-transAngle) * Math.cos(transAngle+PI/2);
 		
-		balls[i].vY = (balls[i].v * Math.cos(balls[i].angle-transAngle)*(balls[i].m - balls[i+1].m) + 
-						2 * balls[i+1].m * balls[i+1].v * Math.cos(balls[i+1].angle-transAngle)) / (balls[i].m + balls[i+1].m) * Math.sin(transAngle) +
-						balls[i].v * Math.sin(balls[i].angle-transAngle) * Math.sin(transAngle+Math.PI/2);
+		ball1.vY = (ball1.v * Math.cos(ball1.angle-transAngle)*(ball1.m - ball2.m) + 
+						2 * ball2.m * ball2.v * Math.cos(ball2.angle-transAngle)) / (ball1.m + ball2.m) * Math.sin(transAngle) +
+						ball1.v * Math.sin(ball1.angle-transAngle) * Math.sin(transAngle+PI/2);
 		
-		balls[i+1].vX = (balls[i+1].v * Math.cos(balls[i+1].angle-transAngle)*(balls[i+1].m - balls[i].m) + 
-						2 * balls[i].m * balls[i].v * Math.cos(balls[i].angle-transAngle)) / (balls[i].m + balls[i+1].m) * Math.cos(transAngle) +
-						balls[i+1].v * Math.sin(balls[i+1].angle-transAngle) * Math.cos(transAngle+Math.PI/2);
+		ball2.vX = (ball2.v * Math.cos(ball2.angle-transAngle)*(ball2.m - ball1.m) + 
+						2 * ball1.m * ball1.v * Math.cos(ball1.angle-transAngle)) / (ball1.m + ball2.m) * Math.cos(transAngle) +
+						ball2.v * Math.sin(ball2.angle-transAngle) * Math.cos(transAngle+PI/2);
 		
-		balls[i+1].vY = (balls[i+1].v * Math.cos(balls[i+1].angle-transAngle)*(balls[i+1].m - balls[i].m) + 
-						2 * balls[i].m * balls[i].v * Math.cos(balls[i].angle-transAngle)) / (balls[i+1].m + balls[i].m) * Math.sin(transAngle) +
-						balls[i+1].v * Math.sin(balls[i+1].angle-transAngle) * Math.sin(transAngle+Math.PI/2);
-		/*balls[i].vX = ((2 * balls[i+1].m * balls[i+1].vX) + (balls[i].m - balls[i+1].m) * balls[i].vX)/(balls[i].m + balls[i+1].m);
-		balls[i+1].vX = ((2 * balls[i].m * temp) + (balls[i+1].m - balls[i].m) * balls[i+1].vX)/(balls[i].m + balls[i+1].m);
-		temp = balls[i].vY;
-		balls[i].vY = ((2 * balls[i+1].m * balls[i+1].vY) + (balls[i].m - balls[i+1].m) * balls[i].vY)/(balls[i].m + balls[i+1].m);
-		balls[i+1].vY = ((2 * balls[i].m * temp) + (balls[i+1].m - balls[i].m) * balls[i+1].vY)/(balls[i].m + balls[i+1].m);
-		/*balls[i].vX = (balls[i].m * balls[i].vX + balls[i+1].m * balls[i+1].vX - balls[i+1].m * k * (balls[i+1].vX - balls[i].vX))
-		/ (balls[i].m + balls[i+1].m);
-		balls[i + 1].vX = (balls[i].m * temp + balls[i+1].m * balls[i+1].vX - balls[i].m * k * (temp - balls[i + 1].vX))
-		/ (balls[i].m + balls[i+1].m);
-		temp = balls[i].vY;
-		balls[i].vY = (balls[i].m * balls[i].vY + balls[i+1].m * balls[i+1].vY - balls[i+1].m * k * (balls[i+1].vY - balls[i].vY))
-		/ (balls[i].m + balls[i+1].m);
-		balls[i + 1].vY = (balls[i].m * temp + balls[i+1].m * balls[i+1].vY - balls[i].m * k * (temp - balls[i + 1].vY))
-		/ (balls[i].m + balls[i+1].m);*/
-		balls[i].angle = Math.atan(balls[i].vY/balls[i].vX);
-		balls[i+1].angle = Math.atan(balls[i+1].vY/balls[i+1].vX);
-		balls[i].cos = Math.cos(balls[i].angle);
-		balls[i + 1].cos = Math.cos(balls[i + 1].angle);
-		balls[i].sin = Math.sin(balls[i].angle);
-		balls[i+1].sin = Math.sin(balls[i + 1].angle);
-		if (balls[i].cos != 0)
-			balls[i].v = balls[i].vX / balls[i].cos;
-		else balls[i].v =  balls[i].vY / balls[i].sin;
-		if (balls[i+1].cos != 0)
-			balls[i+1].v =  balls[i+1].vX / balls[i+1].cos;
-		else balls[i+1].v =  balls[i+1].vY / balls[i+1].sin;
-		balls[i].sT = performance.now();
-		balls[i+1].sT = performance.now();
-		balls[i].sX = balls[i].x;
-		balls[i].sY = balls[i].y;
-		balls[i+1].sX = balls[i+1].x;
-		balls[i+1].sY = balls[i+1].y;
-		console.log(balls[i].x-balls[i+1].x,balls[i].y,balls[i+1].y);
-		console.log(transAngle*180/Math.PI, balls[i].angle, balls[i+1].angle);
-	}
-	return balls;
+		ball2.vY = (ball2.v * Math.cos(ball2.angle-transAngle)*(ball2.m - ball1.m) + 
+						2 * ball1.m * ball1.v * Math.cos(ball1.angle-transAngle)) / (ball2.m + ball1.m) * Math.sin(transAngle) +
+						ball2.v * Math.sin(ball2.angle-transAngle) * Math.sin(transAngle+PI/2);*/
+		/*ball1.vX = ((2 * ball2.m * ball2.vX) + (ball1.m - ball2.m) * ball1.vX)/(ball1.m + ball2.m);
+		ball2.vX = ((2 * ball1.m * temp) + (ball2.m - ball1.m) * ball2.vX)/(ball1.m + ball2.m);
+		temp = ball1.vY;
+		ball1.vY = ((2 * ball2.m * ball2.vY) + (ball1.m - ball2.m) * ball1.vY)/(ball1.m + ball2.m);
+		ball2.vY = ((2 * ball1.m * temp) + (ball2.m - ball1.m) * ball2.vY)/(ball1.m + ball2.m);
+		*/
+		ball1.vX = (ball1.m * ball1.v * Math.cos(ball1.angle - transAngle) 
+			+ ball2.m * ball2.v * Math.cos(ball2.angle-transAngle)
+			- ball2.m*k*(ball1.v*Math.cos(ball1.angle-transAngle)-ball2.v*Math.cos(ball2.angle-transAngle)))
+			/ (ball1.m + ball2.m) * Math.cos(transAngle) + ball1.v * Math.sin(ball1.angle-transAngle) * Math.cos(transAngle + PI/2)
+			+ ball2.v * Math.sin(ball2.angle - transAngle)*Math.cos(transAngle+PI/2);
+		ball1.vY = (ball1.m * ball1.v * Math.cos(ball1.angle - transAngle) 
+			+ ball2.m * ball2.v * Math.cos(ball2.angle-transAngle)
+			- ball2.m*k*(ball1.v*Math.cos(ball1.angle-transAngle)-ball2.v*Math.cos(ball2.angle-transAngle)))
+			/ (ball1.m + ball2.m) * Math.sin(transAngle) + ball1.v * Math.sin(ball1.angle-transAngle) * Math.sin(transAngle + PI/2)
+			+ ball2.v * Math.sin(ball2.angle - transAngle)*Math.sin(transAngle+PI/2);
+		ball2.vX = (ball1.m * ball1.v * Math.cos(ball1.angle - transAngle) 
+			+ ball2.m * ball2.v * Math.cos(ball2.angle-transAngle)
+			- ball1.m*k*(ball2.v*Math.cos(ball2.angle-transAngle)-ball1.v*Math.cos(ball1.angle-transAngle)))
+			/ (ball1.m + ball2.m) * Math.cos(transAngle) + ball1.v * Math.sin(ball1.angle-transAngle) * Math.cos(transAngle + PI/2)
+			+ ball2.v * Math.sin(ball2.angle - transAngle)*Math.cos(transAngle+PI/2);
+		ball2.vY =  (ball1.m * ball1.v * Math.cos(ball1.angle - transAngle) 
+			+ ball2.m * ball2.v * Math.cos(ball2.angle-transAngle)
+			- ball1.m*k*(ball2.v*Math.cos(ball2.angle-transAngle)-ball1.v*Math.cos(ball1.angle-transAngle)))
+			/ (ball1.m + ball2.m) * Math.sin(transAngle) + ball1.v * Math.sin(ball1.angle-transAngle) * Math.sin(transAngle + PI/2)
+			+ ball2.v * Math.sin(ball2.angle - transAngle)*Math.sin(transAngle+PI/2);
+		ball1.angle = Math.atan(ball1.vY/ball1.vX);
+		ball2.angle = Math.atan(ball2.vY/ball2.vX);
+		ball1.cos = Math.cos(ball1.angle);
+		ball2.cos = Math.cos(ball2.angle);
+		ball1.sin = Math.sin(ball1.angle);
+		ball2.sin = Math.sin(ball2.angle);
+		if (ball1.cos != 0)
+			ball1.v = ball1.vX / ball1.cos;
+		else ball1.v =  ball1.vY / ball1.sin;
+		if (ball2.cos != 0)
+			ball2.v =  ball2.vX / ball2.cos;
+		else ball2.v =  ball2.vY / ball2.sin;
+		ball1.sT = performance.now();
+		ball2.sT = performance.now();
+		ball1.sX = ball1.x;
+		ball1.sY = ball1.y;
+		ball2.sX = ball2.x;
+		ball2.sY = ball2.y;
+		console.log(ball1.x-ball2.x,ball1.y,ball2.y);
+		console.log(transAngle*180/PI, ball1.angle, ball2.angle);
+	return [ball1,ball2];
 }
 function wallCollision(balls)
 {
@@ -298,14 +320,14 @@ function wallCollision(balls)
 }
 function animate(ball1, ball2, canvas, context) {
 	context.clearRect(0, 0, canvas.width, canvas.height);
-	$("#angle-info1").val(ball1.angle*180/Math.PI);
+	$("#angle-info1").val(ball1.angle*180/PI);
 	$("#x-info1").val(ball1.x);
 	$("#y-info1").val(ball1.y);
 	$("#v-info1").val(ball1.v);
 	$("#vX-info1").val(ball1.vX);
 	$("#vY-info1").val(ball1.vY);
 
-	$("#angle-info2").val(ball2.angle*180/Math.PI);
+	$("#angle-info2").val(ball2.angle*180/PI);
 	$("#x-info2").val(ball2.x);
 	$("#y-info2").val(ball2.y);
 	$("#v-info2").val(ball2.v);
@@ -324,11 +346,11 @@ function animate(ball1, ball2, canvas, context) {
 		startTime = performance.now();
 		console.log(ball1,ball2);
 	}*/
-		if (walls)
+	if (walls)
 		[ball1, ball2] = wallCollision([ball1, ball2]);
 	if (Math.pow(ball1.x - ball2.x, 2) + Math.pow(ball1.y - ball2.y, 2) <= Math.pow(ball1.radius + ball2.radius, 2))
 	{
-		[ball1,ball2] = calculateCollision([ball1,ball2]);
+		[ball1,ball2] = calculateCollision(ball1,ball2);
 	}
 	drawBalls(context, [ball1, ball2]);
 	/*animation = setTimeout(function(){
