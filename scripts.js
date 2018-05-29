@@ -198,6 +198,7 @@ function calculateCollision(balls)
 		var newCoords = [balls[i].x - balls[i+1].x, balls[i].y - balls[i+1].y];
 		var transAngle = Math.acos(Math.abs(balls[i].vX * newCoords[0] + balls[i].vY * newCoords[1]) / (Math.sqrt(balls[i].vX * balls[i].vX + balls[i].vY * balls[i].vY) *
 		Math.sqrt(newCoords[0] * newCoords[0] + newCoords[1] * newCoords[1])));
+		$("#angle-info0").val(transAngle*180/Math.PI);
 		console.log(Math.abs(balls[i].vX * newCoords[0] + balls[i].vY * newCoords[1]), Math.sqrt(balls[i].vX * balls[i].vX + balls[i].vY * balls[i].vY) *
 		Math.sqrt(newCoords[0] * newCoords[0] + newCoords[1] * newCoords[1]));
 		balls[i].vX = (balls[i].v * Math.cos(balls[i].angle-transAngle)*(balls[i].m - balls[i+1].m) + 
