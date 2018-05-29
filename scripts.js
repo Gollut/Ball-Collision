@@ -15,15 +15,10 @@ var showingSpeed = MS/Math.pow(10,$("#speedRange").val());
 var walls = true;
 start();
 window.requestAnimFrame = (function(callback) {
-		globalID = (
-            window.webkitRequestAnimationFrame ||
-            window.mozRequestAnimationFrame ||
-            window.oRequestAnimationFrame ||
-            window.msRequestAnimaationFrame ||
-            function(callback, element) {
-                window.setTimeout(callback, 1000/60);
-            }
-        )
+		return window.requestAnimationFrame || window.webkitRequestAnimationFrame || window.mozRequestAnimationFrame || window.oRequestAnimationFrame || window.msRequestAnimationFrame ||
+		function(callback) {
+		  window.setTimeout(callback, 1000 / 60);
+		};
 })();
 window.performance = window.performance || {};
 performance.now = (function() {
@@ -136,8 +131,8 @@ function start(){
 	vY: $("#v2").val() * Math.sin($("#angle2").val() * Math.PI/180),
 	cos: Math.cos($("#angle2").val() * Math.PI/180),
 	sin: Math.sin($("#angle2").val() * Math.PI/180),
-	angle: parseInt($("#angle2").val() * Math.PI/180),
-	radius: parseInt(radius),
+	angle: parseFloat($("#angle2").val() * Math.PI/180),
+	radius: parseFloat(radius),
 	m: parseInt($("#mass2").val()),
 	mainColor: '#448AFF',
 	subColor: '#275299',
@@ -205,10 +200,12 @@ function calculateCollision(balls)
 		Math.sqrt(newCoords[0] * newCoords[0] + newCoords[1] * newCoords[1]),
 		(balls[i+1].x * newCoords[0] + balls[i+1].y * newCoords[1]) / Math.sqrt(balls[i+1].vX * balls[i+1].vX + balls[i+1].vY * balls[i+1].vY) *
 		Math.sqrt(newCoords[0] * newCoords[0] + newCoords[1] * newCoords[1])]);
-		balls[i].vX = (2 * balls[i+1].m * balls[i+1].v * Math.cos(balls[i+1].angle) + (balls[i].m - balls[i+1].m) * balls[i].v * Math.cos(balls[i].angle))/(balls[i].m + balls[i+1].m);
-		balls[i+1].vX = (2 * balls[i].m * balls[i].v * Math.cos(balls[i].angle) + (balls[i+1].m - balls[i].m) * balls[i+1].v * Math.cos(balls[i+1].angle))/(balls[i].m + balls[i+1].m);
-		balls[i].vY = (2 * balls[i+1].m * balls[i+1].v * Math.sin(balls[i+1].angle) + (balls[i].m - balls[i+1].m) * balls[i].v * Math.sin(balls[i].angle))/(balls[i].m + balls[i+1].m);
-		balls[i+1].vY = (2 * balls[i].m * balls[i].v * Math.sin(balls[i].angle) + (balls[i+1].m - balls[i].m) * balls[i+1].v * Math.sin(balls[i+1].angle))/(balls[i].m + balls[i+1].m);
+		temp = balls[i].vX;
+		balls[i].vX = ((2 * balls[i+1].m * balls[i+1].vX) + (balls[i].m - balls[i+1].m) * balls[i].vX)/(balls[i].m + balls[i+1].m);
+		balls[i+1].vX = ((2 * balls[i].m * temp) + (balls[i+1].m - balls[i].m) * balls[i+1].vX)/(balls[i].m + balls[i+1].m);
+		temp = balls[i].vY;
+		balls[i].vY = ((2 * balls[i+1].m * balls[i+1].vY) + (balls[i].m - balls[i+1].m) * balls[i].vY)/(balls[i].m + balls[i+1].m);
+		balls[i+1].vY = ((2 * balls[i].m * temp) + (balls[i+1].m - balls[i].m) * balls[i+1].vY)/(balls[i].m + balls[i+1].m);
 		/*balls[i].vX = (balls[i].m * balls[i].vX + balls[i+1].m * balls[i+1].vX - balls[i+1].m * k * (balls[i+1].vX - balls[i].vX))
 		/ (balls[i].m + balls[i+1].m);
 		balls[i + 1].vX = (balls[i].m * temp + balls[i+1].m * balls[i+1].vX - balls[i].m * k * (temp - balls[i + 1].vX))
@@ -239,25 +236,38 @@ function wallCollision(balls)
 	{
 		if (balls[i].x > sizeX - balls[i].radius || balls[i].x < balls[i].radius)
 		{
+			if (balls[i].x > sizeX - balls[i].radius)
+			{
+				balls[i].x = sizeX - balls[i].radius;
+			}
+			else
+				balls[i].x = balls[i].radius;
 			balls[i].vX = -balls[i].vX;
 			balls[i].sT = performance.now();
 			balls[i].sX = balls[i].x;
 			balls[i].sY = balls[i].y;
-			console.log(balls[i]);
+			balls[i].angle = Math.atan(balls[i].vY/balls[i].vX);
 		}
 		if (balls[i].y < balls[i].radius || balls[i].y > sizeY - balls[i].radius)
 		{
+			if (balls[i].y < balls[i].radius)
+			{
+				balls[i].y = balls[i].radius;
+			}
+			else
+				balls[i].y = sizeY - balls[i].radius;
 			balls[i].vY = -balls[i].vY;
 			balls[i].sT = performance.now();
 			balls[i].sY = balls[i].y;
 			balls[i].sX = balls[i].x;
-			console.log(balls[i]);
+			balls[i].angle = Math.atan(balls[i].vY/balls[i].vX);
 		}
 	}
 	return balls;
 }
 function animate(ball1, ball2, canvas, context) {
 	context.clearRect(0, 0, canvas.width, canvas.height);
+	console.log(ball1,ball2);
 	$("#angle-info1").val(ball1.angle*180/Math.PI);
 	$("#x-info1").val(ball1.x);
 	$("#y-info1").val(ball1.y);
@@ -290,10 +300,10 @@ function animate(ball1, ball2, canvas, context) {
 		[ball1,ball2] = calculateCollision([ball1,ball2]);
 	}
 	drawBalls(context, [ball1, ball2]);
-	animation = setTimeout(function(){
+	/*animation = setTimeout(function(){
 			animate(ball1, ball2, canvas, context);
-		}, 1)
-	/*requestAnimFrame(function() {
+		}, 1)*/
+	window.requestAnimationFrame(function() {
 		animate(ball1, ball2, canvas, context);
-	});*/
+	});
 }
