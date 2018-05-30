@@ -13,7 +13,7 @@ var animation = false;
 const CENTER_CONST = 8, MS = 1000, SPREAD_CONST = 2, G_CONST = 9.8;
 var showingSpeed = MS/Math.pow(10,$("#speedRange").val());
 var walls = true;
-const PI = Math.PI - 0.00001;
+const PI = Math.PI - 0.0001;
 start();
 window.requestAnimationFrame = (function(callback) {
 		return window.requestAnimationFrame || window.webkitRequestAnimationFrame || window.mozRequestAnimationFrame || window.oRequestAnimationFrame || window.msRequestAnimationFrame ||
@@ -47,6 +47,7 @@ $("#startBtn").click(function() {
 	animation = false;
 	window.setTimeout(function(){start()}, 100);
 });
+
 
 function drawAxisLines(){
 	context.beginPath();
@@ -147,6 +148,7 @@ function start(){
 	context.clearRect(0, 0, canvas.width, canvas.height);
 	drawBalls(context, [ball1, ball2]);
 	animation = true;
+	$("#angle-info0").val("");
 	animate(ball1, ball2, canvas, context, performance.now());
 }
 
@@ -197,10 +199,10 @@ function calculateCollision(ball1,ball2)
 {
 	while (Math.pow(ball1.x - ball2.x, 2) + Math.pow(ball1.y - ball2.y, 2) <= Math.pow(ball1.radius + ball2.radius, 2))
 		{
-			ball1.x -= ball1.vX  * showingSpeed / 1000000;
-			ball1.y -= ball1.vY  * showingSpeed / 1000000;
-			ball2.x -= ball2.vX  * showingSpeed / 1000000;
-			ball2.y -= ball2.vY  * showingSpeed / 1000000;
+			ball1.x -= ball1.vX  * showingSpeed / 100000;
+			ball1.y -= ball1.vY  * showingSpeed / 100000;
+			ball2.x -= ball2.vX  * showingSpeed / 100000;
+			ball2.y -= ball2.vY  * showingSpeed / 100000;
 		}
 		var newCoords = [ball1.x - ball2.x, ball1.y - ball2.y];
 		var transAngle = Math.acos(newCoords[0] / Math.sqrt(newCoords[0] * newCoords[0] + newCoords[1] * newCoords[1]));
@@ -214,8 +216,7 @@ function calculateCollision(ball1,ball2)
 		ball1.vY = (ball1.m * ball1.v * Math.cos(ball1.angle - transAngle) 
 			+ ball2.m * ball2.v * Math.cos(ball2.angle-transAngle)
 			- ball2.m*k*(ball1.v*Math.cos(ball1.angle-transAngle)-ball2.v*Math.cos(ball2.angle-transAngle)))
-			/ (ball1.m + ball2.m) * Math.sin(transAngle) + ball1.v * Math.sin(ball1.angle-transAngle) * Math.sin(transAngle + PI/2)
-			+ ball2.v * Math.sin(ball2.angle - transAngle)*Math.sin(transAngle+PI/2);
+			/ (ball1.m + ball2.m) * Math.sin(transAngle) + ball1.v * Math.sin(ball1.angle-transAngle) * Math.sin(transAngle + PI/2);
 		ball2.vX = (ball1.m * ball1.v * Math.cos(ball1.angle - transAngle) 
 			+ ball2.m * ball2.v * Math.cos(ball2.angle-transAngle)
 			- ball1.m*k*(ball2.v*Math.cos(ball2.angle-transAngle)-ball1.v*Math.cos(ball1.angle-transAngle)))
@@ -224,20 +225,15 @@ function calculateCollision(ball1,ball2)
 		ball2.vY =  (ball1.m * ball1.v * Math.cos(ball1.angle - transAngle) 
 			+ ball2.m * ball2.v * Math.cos(ball2.angle-transAngle)
 			- ball1.m*k*(ball2.v*Math.cos(ball2.angle-transAngle)-ball1.v*Math.cos(ball1.angle-transAngle)))
-			/ (ball1.m + ball2.m) * Math.sin(transAngle) + ball1.v * Math.sin(ball1.angle-transAngle) * Math.sin(transAngle + PI/2)
-			+ ball2.v * Math.sin(ball2.angle - transAngle)*Math.sin(transAngle+PI/2);
+			/ (ball1.m + ball2.m) * Math.sin(transAngle) + ball2.v * Math.sin(ball2.angle - transAngle)*Math.sin(transAngle+PI/2);
 		ball1.angle = Math.atan(ball1.vY/ball1.vX);
 		ball2.angle = Math.atan(ball2.vY/ball2.vX);
 		ball1.cos = Math.cos(ball1.angle);
 		ball2.cos = Math.cos(ball2.angle);
 		ball1.sin = Math.sin(ball1.angle);
 		ball2.sin = Math.sin(ball2.angle);
-		if (ball1.cos != 0)
-			ball1.v = ball1.vX / ball1.cos;
-		else ball1.v =  ball1.vY / ball1.sin;
-		if (ball2.cos != 0)
-			ball2.v =  ball2.vX / ball2.cos;
-		else ball2.v =  ball2.vY / ball2.sin;
+		ball1.v = Math.sqrt(ball1.vX*ball1.vX + ball1.vY*ball1.vY);
+		ball2.v = Math.sqrt(ball2.vX*ball2.vX + ball2.vY*ball2.vY);
 		ball1.sT = performance.now();
 		ball2.sT = performance.now();
 		ball1.sX = ball1.x;
@@ -265,9 +261,6 @@ function wallCollision(balls)
 			balls[i].sX = balls[i].x;
 			balls[i].sY = balls[i].y;
 			balls[i].angle = Math.atan(balls[i].vY/balls[i].vX);
-			if (balls[i].cos != 0)
-				balls[i].v = balls[i].vX / balls[i].cos;
-			else balls[i].v =  balls[i].vY / balls[i].sin;
 		}
 		if (balls[i].y < balls[i].radius || balls[i].y > sizeY - balls[i].radius)
 		{
@@ -282,9 +275,6 @@ function wallCollision(balls)
 			balls[i].sY = balls[i].y;
 			balls[i].sX = balls[i].x;
 			balls[i].angle = Math.atan(balls[i].vY/balls[i].vX);
-			if (balls[i].cos != 0)
-				balls[i].v = balls[i].vX / balls[i].cos;
-			else balls[i].v =  balls[i].vY / balls[i].sin;
 		}
 	}
 	return balls;
