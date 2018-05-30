@@ -97,7 +97,7 @@ function start(){
 	sizeY = canvas.height;
 	sizeX = canvas.width;
 	canvasRatio = canvas.width/canvas.height;
-	u = parseFloat($("#u").val().replace(/,/g, "."));
+	u = 0;
 	k = parseFloat($("#k").val().replace(/,/g, "."));
 
 	var x1 = Math.max($("#x1").val(), radius), y1 = Math.max($("#y1").val(), radius);
