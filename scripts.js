@@ -13,7 +13,7 @@ var animation = false;
 const CENTER_CONST = 8, MS = 1000, SPREAD_CONST = 2, G_CONST = 9.8;
 var showingSpeed = MS/Math.pow(10,$("#speedRange").val());
 var walls = true;
-const PI = Math.PI - 0.0001;
+const PI = Math.PI;
 start();
 window.requestAnimationFrame = (function(callback) {
 		return window.requestAnimationFrame || window.webkitRequestAnimationFrame || window.mozRequestAnimationFrame || window.oRequestAnimationFrame || window.msRequestAnimationFrame ||
@@ -211,8 +211,7 @@ function calculateCollision(ball1,ball2)
 		ball1.vX = (ball1.m * ball1.v * Math.cos(ball1.angle - transAngle) 
 			+ ball2.m * ball2.v * Math.cos(ball2.angle-transAngle)
 			- ball2.m*k*(ball1.v*Math.cos(ball1.angle-transAngle)-ball2.v*Math.cos(ball2.angle-transAngle)))
-			/ (ball1.m + ball2.m) * Math.cos(transAngle) + ball1.v * Math.sin(ball1.angle-transAngle) * Math.cos(transAngle + PI/2)
-			+ ball2.v * Math.sin(ball2.angle - transAngle)*Math.cos(transAngle+PI/2);
+			/ (ball1.m + ball2.m) * Math.cos(transAngle) + ball1.v * Math.sin(ball1.angle-transAngle) * Math.cos(transAngle + PI/2);
 		ball1.vY = (ball1.m * ball1.v * Math.cos(ball1.angle - transAngle) 
 			+ ball2.m * ball2.v * Math.cos(ball2.angle-transAngle)
 			- ball2.m*k*(ball1.v*Math.cos(ball1.angle-transAngle)-ball2.v*Math.cos(ball2.angle-transAngle)))
@@ -220,8 +219,7 @@ function calculateCollision(ball1,ball2)
 		ball2.vX = (ball1.m * ball1.v * Math.cos(ball1.angle - transAngle) 
 			+ ball2.m * ball2.v * Math.cos(ball2.angle-transAngle)
 			- ball1.m*k*(ball2.v*Math.cos(ball2.angle-transAngle)-ball1.v*Math.cos(ball1.angle-transAngle)))
-			/ (ball1.m + ball2.m) * Math.cos(transAngle) + ball1.v * Math.sin(ball1.angle-transAngle) * Math.cos(transAngle + PI/2)
-			+ ball2.v * Math.sin(ball2.angle - transAngle)*Math.cos(transAngle+PI/2);
+			/ (ball1.m + ball2.m) * Math.cos(transAngle) + ball2.v * Math.sin(ball2.angle - transAngle)*Math.cos(transAngle+PI/2);
 		ball2.vY =  (ball1.m * ball1.v * Math.cos(ball1.angle - transAngle) 
 			+ ball2.m * ball2.v * Math.cos(ball2.angle-transAngle)
 			- ball1.m*k*(ball2.v*Math.cos(ball2.angle-transAngle)-ball1.v*Math.cos(ball1.angle-transAngle)))
@@ -240,8 +238,7 @@ function calculateCollision(ball1,ball2)
 		ball1.sY = ball1.y;
 		ball2.sX = ball2.x;
 		ball2.sY = ball2.y;
-		console.log(ball1.x-ball2.x,ball1.y,ball2.y);
-		console.log(transAngle*180/PI, ball1.angle, ball2.angle);
+		console.log(ball1,ball2);
 	return [ball1,ball2];
 }
 function wallCollision(balls)
