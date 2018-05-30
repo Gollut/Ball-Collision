@@ -206,7 +206,7 @@ function calculateCollision(ball1,ball2)
 		}
 		var newCoords = [ball1.x - ball2.x, ball1.y - ball2.y];
 		var transAngle = Math.acos(newCoords[0] / Math.sqrt(newCoords[0] * newCoords[0] + newCoords[1] * newCoords[1]));
-		$("#angle-info0").val(transAngle*180/PI);
+		$("#angle-info0").val(Math.round(transAngle*180/PI*10)/10);
 		Math.sqrt(newCoords[0] * newCoords[0] + newCoords[1] * newCoords[1]);
 		ball1.vX = (ball1.m * ball1.v * Math.cos(ball1.angle - transAngle) 
 			+ ball2.m * ball2.v * Math.cos(ball2.angle-transAngle)
@@ -278,19 +278,19 @@ function wallCollision(balls)
 }
 function animate(ball1, ball2, canvas, context) {
 	context.clearRect(0, 0, canvas.width, canvas.height);
-	$("#angle-info1").val(Math.round(ball1.angle*180/PI*100)/100);
+	$("#angle-info1").val(Math.round(ball1.angle*180/PI*10)/10);
 	$("#x-info1").val(ball1.x);
 	$("#y-info1").val(ball1.y);
-	$("#v-info1").val(Math.round(ball1.v*100)/100);
-	$("#vX-info1").val(Math.round(ball1.vX*100)/100);
-	$("#vY-info1").val(Math.round(ball1.vY*100)/100);
+	$("#v-info1").val(Math.round(ball1.v*10)/100);
+	$("#vX-info1").val(Math.round(ball1.vX*10)/100);
+	$("#vY-info1").val(Math.round(ball1.vY*10)/100);
 
-	$("#angle-info2").val(Math.round(ball2.angle*180/PI*100)/100);
+	$("#angle-info2").val(Math.round(ball2.angle*180/PI*10)/10);
 	$("#x-info2").val(ball2.x);
 	$("#y-info2").val(ball2.y);
-	$("#v-info2").val(Math.round(ball2.v*100)/100);
-	$("#vX-info2").val(Math.round(ball2.vX*100)/100);
-	$("#vY-info2").val(Math.round(ball2.vY*100)/100);
+	$("#v-info2").val(Math.round(ball2.v*10)/10);
+	$("#vX-info2").val(Math.round(ball2.vX*10)/10);
+	$("#vY-info2").val(Math.round(ball2.vY*10)/10);
 
 	$("#distance-info").val(Math.sqrt(Math.pow(ball1.x - ball2.x, 2) + Math.pow(ball1.y - ball2.y, 2)));
 
