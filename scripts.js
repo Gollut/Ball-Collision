@@ -199,10 +199,10 @@ function calculateCollision(ball1,ball2)
 {
 	while (Math.pow(ball1.x - ball2.x, 2) + Math.pow(ball1.y - ball2.y, 2) <= Math.pow(ball1.radius + ball2.radius, 2))
 		{
-			ball1.x -= ball1.vX  * showingSpeed / 100000;
-			ball1.y -= ball1.vY  * showingSpeed / 100000;
-			ball2.x -= ball2.vX  * showingSpeed / 100000;
-			ball2.y -= ball2.vY  * showingSpeed / 100000;
+			ball1.x -= ball1.vX  * showingSpeed / 1000000000;
+			ball1.y -= ball1.vY  * showingSpeed / 1000000000;
+			ball2.x -= ball2.vX  * showingSpeed / 1000000000;
+			ball2.y -= ball2.vY  * showingSpeed / 1000000000;
 		}
 		var newCoords = [ball1.x - ball2.x, ball1.y - ball2.y];
 		var transAngle = Math.acos(newCoords[0] / Math.sqrt(newCoords[0] * newCoords[0] + newCoords[1] * newCoords[1]));
@@ -278,14 +278,23 @@ function wallCollision(balls)
 }
 function animate(ball1, ball2, canvas, context) {
 	context.clearRect(0, 0, canvas.width, canvas.height);
-	$("#angle-info1").val(Math.round(ball1.angle*180/PI*10)/10);
+	eps = 0.02;
+	if (ball2.angle - eps < Math.floor(ball2.angle))
+		$("#angle-info1").val(Math.floor(ball2.angle*180/PI));
+	else if (ball2.angle + eps > Math.ceil(ball2.angle))
+		$("#angle-info1").val(Math.ceil(ball2.angle*180/PI));
+	else $("#angle-info1").val(Math.round(ball2.angle*180/PI*10)/10);
 	$("#x-info1").val(ball1.x);
 	$("#y-info1").val(ball1.y);
-	$("#v-info1").val(Math.round(ball1.v*10)/100);
-	$("#vX-info1").val(Math.round(ball1.vX*10)/100);
-	$("#vY-info1").val(Math.round(ball1.vY*10)/100);
+	$("#v-info1").val(Math.round(ball1.v*10)/10);
+	$("#vX-info1").val(Math.round(ball1.vX*10)/10);
+	$("#vY-info1").val(Math.round(ball1.vY*10)/10);
 
-	$("#angle-info2").val(Math.round(ball2.angle*180/PI*10)/10);
+	if (ball2.angle - eps < Math.floor(ball2.angle))
+		$("#angle-info2").val(Math.floor(ball2.angle*180/PI));
+	else if (ball2.angle + eps > Math.ceil(ball2.angle))
+		$("#angle-info2").val(Math.ceil(ball2.angle*180/PI));
+	else $("#angle-info2").val(Math.round(ball2.angle*180/PI*10)/10);
 	$("#x-info2").val(ball2.x);
 	$("#y-info2").val(ball2.y);
 	$("#v-info2").val(Math.round(ball2.v*10)/10);
