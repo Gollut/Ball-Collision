@@ -260,7 +260,7 @@ function wallCollision(balls)
 			else
 				balls[i].x = balls[i].radius;
 			balls[i].vX = -balls[i].vX;
-			balls[i].angle = -balls[i].angle;
+			balls[i].angle = Math.acos(balls[i].vX/balls[i].v);
 			balls[i].sT = performance.now();
 			balls[i].sX = balls[i].x;
 			balls[i].sY = balls[i].y;
@@ -273,8 +273,9 @@ function wallCollision(balls)
 			}
 			else
 				balls[i].y = sizeY - balls[i].radius;
-			balls[i].angle = -balls[i].angle;
+
 			balls[i].vY = -balls[i].vY;
+			balls[i].angle = Math.asin(balls[i].vY/balls[i].v);
 			balls[i].sT = performance.now();
 			balls[i].sY = balls[i].y;
 			balls[i].sX = balls[i].x;
