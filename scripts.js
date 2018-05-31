@@ -13,6 +13,7 @@ var animation = false;
 const CENTER_CONST = 8, MS = 1000, SPREAD_CONST = 2, G_CONST = 9.8;
 var showingSpeed = MS/Math.pow(10,$("#speedRange").val());
 var walls = true;
+var ball1, ball2;
 const PI = Math.PI;
 start();
 window.requestAnimationFrame = (function(callback) {
@@ -40,6 +41,15 @@ $(".randomize").click(function() {
 });
 
 $("#speedRange").on('input', function () {
+	if (ball1)
+	{
+		ball1.sT = performance.now();
+		ball1.sX = ball1.x;
+		ball1.sY = ball1.y;
+		ball2.sX = ball2.x;
+		ball2.sY = ball2.y;
+		ball2.sT = performance.now();
+	}
 	showingSpeed = MS/Math.pow(10,$("#speedRange").val());
 });
 
@@ -102,7 +112,7 @@ function start(){
 
 	var x1 = Math.max($("#x1").val(), radius), y1 = Math.max($("#y1").val(), radius);
 	var angle = parseFloat($("#angle1").val() * PI/180);
-	var ball1 = {
+	ball1 = {
 	sT: performance.now(),
 	sX: x1,
 	sY: y1,
@@ -124,7 +134,7 @@ function start(){
 	x2 = Math.max($("#x2").val(), radius);
 	y2 = Math.max($("#y2").val(), radius);
 	angle = parseFloat($("#angle2").val()) * PI/180;
-	var ball2 = {
+	ball2 = {
 	sT: performance.now(),
 	sX: x2,
 	sY: y2,
@@ -176,11 +186,13 @@ function drawArrow(context, ball){
 
 function drawBall(context, ball) {
 	context.beginPath();
-	context.arc(ball.x*showingRatio, (1-ball.y/sizeY)*canvas.height, ball.radius*showingRatio, 0, 360, 0);
+	context.arc(ball.x * showingRatio, (1 - ball.y / sizeY) * canvas.height, 
+		ball.radius * showingRatio, 0, 360, 0);
 	context.fillStyle = ball.mainColor;
 	context.fill();
 	context.beginPath();
-	context.arc(ball.x*showingRatio, (1-ball.y/sizeY)*canvas.height, ball.radius/CENTER_CONST*showingRatio, 0, 360, 0);
+	context.arc(ball.x * showingRatio, (1 - ball.y / sizeY) * canvas.height, 
+		ball.radius / CENTER_CONST * showingRatio, 0, 360, 0);
 	context.fillStyle = ball.subColor;
 	context.fill();
 }
@@ -208,6 +220,8 @@ function calculateCollision(ball1,ball2)
 	}
 	var newCoords = [ball1.x - ball2.x, ball1.y - ball2.y];
 	var transAngle = Math.acos(newCoords[0] / Math.sqrt(newCoords[0] * newCoords[0] + newCoords[1] * newCoords[1]));
+	if (newCoords[1] < 0)
+		transAngle = -transAngle;
 	$("#angle-info0").val(Math.round(transAngle*180/PI*10)/10);
 	Math.sqrt(newCoords[0] * newCoords[0] + newCoords[1] * newCoords[1]);
 	ball1.vX = (ball1.m * ball1.v * Math.cos(ball1.angle - transAngle) 
@@ -286,6 +300,7 @@ function wallCollision(balls)
 function animate(ball1, ball2, canvas, context) {
 	context.clearRect(0, 0, canvas.width, canvas.height);
 	eps = 0.02;
+	console.log("angle", ball1.angle*180/PI);
 	if (ball1.angle - eps < Math.floor(ball1.angle))
 		$("#angle-info1").val(Math.floor(ball1.angle*180/PI));
 	else if (ball1.angle + eps > Math.ceil(ball1.angle))
